@@ -15,22 +15,6 @@
 
 ---
 
-## 🎯 特性
-
-<div align="center">
-
-| 🎨 界面设计 | 🔍 搜索功能 | 🏷️ 标签系统 |
-|:---:|:---:|:---:|
-| macOS 风格设计<br>深色/浅色主题 | 标题/代码/关键词搜索<br>`#标签` 精确匹配 | 彩色标签云<br>一键筛选切换 |
-
-| 💾 云端同步 | 🔖 配置恢复 | 🌐 多语言 |
-|:---:|:---:|:---:|
-| GitHub 自动备份<br>数据安全可靠 | 书签一键恢复<br>跨设备同步 | 中文/英文界面<br>无缝切换 |
-
-</div>
-
----
-
 ## 🚀 快速开始
 
 ### 1️⃣ Fork 仓库
@@ -117,46 +101,11 @@ Spark/
 > 💡 **数据存储**：所有代码片段数据都存储在 GitHub 仓库的 `snippets.json` 文件中，通过 GitHub API 自动同步。
 
 ---
-
-## 🛠️ 技术栈
-
-<div align="center">
-
-![Vue 3](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![GitHub API](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
-
-</div>
-
----
-
-## 💡 使用技巧
-
-<div align="left">
-
-- 🔍 **搜索功能**
-  - 输入 `#标签名` 精确匹配标签（如 `#vue`、`#python`）
-  - 输入普通关键词搜索标题、代码内容和标签
-- 📋 点击代码区域快速复制
-- 🎯 点击已选标签可取消筛选
-- 🔖 保存书签链接，方便配置恢复
-
-</div>
-
----
-
 ## 🔒 数据安全
 
 - ✅ Token 存储在本地 localStorage
 - ✅ 数据同步到 GitHub 私有仓库
 - ✅ 支持 JSON 导出备份
-
----
-
-## 📚 详细文档
-
-书签配置恢复的实现逻辑请查看 `snippets.json` 中的代码示例。
 
 ---
 
