@@ -2,7 +2,7 @@
 
 # ✨ Spark
 
-**灵感与代码保险库 · 优雅的代码片段管理工具**
+**灵光一瞬 · 优雅的代码片段管理工具**
 
 [![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
