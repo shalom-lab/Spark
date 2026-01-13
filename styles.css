@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@450;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
