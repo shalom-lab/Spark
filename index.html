@@ -192,7 +192,7 @@
 
                                 <!-- 代码区 -->
                                 <div class="relative flex-grow overflow-hidden group/code bg-white dark:bg-[#000000]">
-                                    <pre class="code-font text-base p-5 h-full overflow-hidden leading-relaxed cursor-pointer transition-colors hljs"
+                                    <pre class="code-font text-sm p-5 h-full overflow-hidden leading-relaxed cursor-pointer transition-colors hljs"
                                         @click="copy(s.code)" style="overflow-x: hidden; overflow-y: hidden;"><code :class="'language-' + getLanguageAlias(s.lang)" v-html="highlightCode(s.code, s.lang)"></code></pre>
                                     <div
                                         class="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover/code:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
@@ -334,12 +334,14 @@
         <!-- 编辑器 Modal -->
         <transition name="view-fade">
             <div v-if="modal.show"
-                class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+                class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
+                @click="langDropdownOpen = false">
                 <div
-                    class="rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1e] transition-colors">
+                    class="rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1e] transition-colors"
+                    @click.stop>
                     <div
                         class="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-black/20 shrink-0">
-                        <h2 class="text-xl font-black italic tracking-tight uppercase">{{ modal.mode === 'add' ?
+                        <h2 class="text-xl font-black tracking-tight uppercase">{{ modal.mode === 'add' ?
                             t('catchSpark') : t('refineSpark') }}</h2>
                         <button @click="modal.show = false" class="text-gray-400 hover:text-indigo-500 transition"><svg
                                 class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,22 +361,28 @@
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{{
                                     t('fieldType') }}</label>
-                                <div class="relative">
-                                    <select v-model="form.lang"
-                                        class="w-full border-none p-4 pl-12 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold appearance-none cursor-pointer bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
-                                        <option value="JS">JavaScript</option>
-                                        <option value="R">R</option>
-                                        <option value="PYTHON">Python</option>
-                                        <option value="YAML">YAML</option>
-                                        <option value="SQL">SQL</option>
-                                        <option value="MD">Markdown</option>
-                                        <option value="TEXT">Plain Text</option>
-                                    </select>
-                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
-                                        :class="getLangColorDot(form.lang)"></div>
+                                <div class="relative" @click.stop>
+                                    <button @click="langDropdownOpen = !langDropdownOpen" type="button"
+                                        class="w-full border-none p-4 pl-12 pr-10 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold cursor-pointer bg-gray-100 dark:bg-black text-gray-900 dark:text-white flex items-center">
+                                        <div class="absolute left-4 w-3 h-3 rounded-full"
+                                            :class="getLangColorDot(form.lang)"></div>
+                                        <span>{{ getLangLabel(form.lang) }}</span>
+                                    </button>
                                     <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
+                                    <transition name="view-fade">
+                                        <div v-if="langDropdownOpen" 
+                                            class="absolute z-50 w-full mt-1 bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/10 rounded-lg shadow-lg overflow-hidden">
+                                            <button v-for="option in langOptions" :key="option.value"
+                                                @click="form.lang = option.value; langDropdownOpen = false"
+                                                :class="form.lang === option.value ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-white/5'"
+                                                class="w-full px-4 py-3 flex items-center gap-3 text-left text-sm font-semibold transition">
+                                                <div class="w-3 h-3 rounded-full flex-shrink-0" :class="getLangColorDot(option.value)"></div>
+                                                <span>{{ option.label }}</span>
+                                            </button>
+                                        </div>
+                                    </transition>
                                 </div>
                             </div>
                         </div>

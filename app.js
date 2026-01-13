@@ -186,6 +186,22 @@ createApp({
 
         const modal = reactive({ show: false, mode: 'add', currentId: null });
         const form = reactive({ title: '', lang: 'JS', code: '', tagsInput: '' });
+        const langDropdownOpen = ref(false);
+
+        const langOptions = [
+            { value: 'JS', label: 'JavaScript' },
+            { value: 'R', label: 'R' },
+            { value: 'PYTHON', label: 'Python' },
+            { value: 'YAML', label: 'YAML' },
+            { value: 'SQL', label: 'SQL' },
+            { value: 'MD', label: 'Markdown' },
+            { value: 'TEXT', label: 'Plain Text' }
+        ];
+
+        const getLangLabel = (value) => {
+            const option = langOptions.find(opt => opt.value === value);
+            return option ? option.label : value;
+        };
 
         const isReady = computed(() => !!(config.token && config.repo));
         const isConnected = computed(() => !!(config.token && config.repo));
@@ -313,6 +329,7 @@ createApp({
 
         const openModal = (mode, s = null) => {
             modal.mode = mode;
+            langDropdownOpen.value = false;
             if (mode === 'edit' && s) {
                 modal.currentId = s.id; form.title = s.title; form.lang = s.lang; form.code = s.code;
                 form.tagsInput = s.tags ? s.tags.join(' ') : '';
@@ -411,7 +428,7 @@ createApp({
             else if (localStorage.getItem('spark_token')) currentView.value = 'settings';
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel };
     }
 }).mount('#app');
 
