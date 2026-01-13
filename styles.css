@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@450;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-font-smoothing: antialiased;
+}
+
+.code-font {
+    font-family: 'Fira Code', monospace;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+/* 极简滚动条 */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 10px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+    background: #d2d2d7;
+    border-radius: 10px;
+}
+
+/* 磨砂玻璃导航 */
+.glass-nav {
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    z-index: 100;
+}
+
+/* 编辑器窗口风格 */
+.editor-window {
+    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-width: 1px;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-window:hover {
+    transform: translateY(-5px);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* 动画 */
+.view-fade-enter-active,
+.view-fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.view-fade-enter-from,
+.view-fade-leave-to {
+    opacity: 0;
+}
+
+.btn-press:active {
+    transform: scale(0.96);
+}
+
+/* Highlight.js 样式优化 */
+.hljs {
+    background: transparent !important;
+    padding: 0;
+}
+
+.dark .hljs {
+    background: transparent !important;
+}
+
+/* 代码块背景色 */
+pre.hljs {
+    background: transparent;
+}
+
+.dark pre.hljs {
+    background: transparent;
+}
+

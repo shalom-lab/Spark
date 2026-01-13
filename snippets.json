@@ -1,1 +1,86 @@
-[]
+[
+    {
+        "id": "1",
+        "title": "Vue 3 响应式数据",
+        "lang": "JS",
+        "code": "import { ref, reactive, computed } from 'vue';\n\n// 基本响应式\nconst count = ref(0);\nconst state = reactive({\n  name: 'Spark',\n  age: 2024\n});\n\n// 计算属性\nconst doubleCount = computed(() => count.value * 2);\n\n// 使用\ncount.value++;\nconsole.log(doubleCount.value);",
+        "tags": [
+            "vue",
+            "响应式",
+            "前端"
+        ],
+        "createdAt": 1704067200000
+    },
+    {
+        "id": "2",
+        "title": "Python 快速排序",
+        "lang": "PYTHON",
+        "code": "def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    \n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    \n    return quicksort(left) + middle + quicksort(right)\n\n# 使用示例\nnumbers = [3, 6, 8, 10, 1, 2, 1]\nprint(quicksort(numbers))",
+        "tags": [
+            "算法",
+            "排序",
+            "python"
+        ],
+        "createdAt": 1704153600000
+    },
+    {
+        "id": "3",
+        "title": "SQL 查询优化技巧",
+        "lang": "SQL",
+        "code": "-- 使用索引优化查询\nSELECT u.id, u.name, o.total\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nWHERE u.created_at > '2024-01-01'\n  AND o.status = 'completed'\nORDER BY o.total DESC\nLIMIT 10;\n\n-- 添加索引建议\n-- CREATE INDEX idx_users_created ON users(created_at);\n-- CREATE INDEX idx_orders_user_status ON orders(user_id, status);",
+        "tags": [
+            "数据库",
+            "优化",
+            "sql"
+        ],
+        "createdAt": 1704240000000
+    },
+    {
+        "id": "4",
+        "title": "R 数据可视化",
+        "lang": "R",
+        "code": "library(ggplot2)\nlibrary(dplyr)\n\n# 创建示例数据\ndata <- data.frame(\n  x = 1:100,\n  y = rnorm(100, mean = 50, sd = 10)\n)\n\n# 绘制散点图\nggplot(data, aes(x = x, y = y)) +\n  geom_point(color = 'indigo', alpha = 0.6) +\n  geom_smooth(method = 'lm', se = TRUE) +\n  theme_minimal() +\n  labs(title = '数据分布图', x = 'X轴', y = 'Y轴')",
+        "tags": [
+            "可视化",
+            "数据分析",
+            "r"
+        ],
+        "createdAt": 1704326400000
+    },
+    {
+        "id": "5",
+        "title": "YAML 配置文件示例",
+        "lang": "YAML",
+        "code": "server:\n  port: 8080\n  host: localhost\n\ndatabase:\n  host: db.example.com\n  port: 5432\n  name: spark_db\n  credentials:\n    username: admin\n    password: ${DB_PASSWORD}\n\nfeatures:\n  dark_mode: true\n  i18n:\n    default: zh-CN\n    supported:\n      - zh-CN\n      - en-US",
+        "tags": [
+            "配置",
+            "yaml",
+            "devops"
+        ],
+        "createdAt": 1704412800000
+    },
+    {
+        "id": "6",
+        "title": "Markdown 常用语法",
+        "lang": "MD",
+        "code": "# 标题\n\n## 二级标题\n\n**粗体文本** 和 *斜体文本*\n\n- 无序列表项 1\n- 无序列表项 2\n\n1. 有序列表项 1\n2. 有序列表项 2\n\n`行内代码`\n\n```javascript\n// 代码块\nconst hello = 'World';\n```\n\n[链接文本](https://example.com)",
+        "tags": [
+            "文档",
+            "markdown",
+            "写作"
+        ],
+        "createdAt": 1704499200000
+    },
+    {
+        "id": "7",
+        "title": "JavaScript 异步处理",
+        "lang": "JS",
+        "code": "// Promise 链式调用\nfetch('/api/data')\n  .then(response => response.json())\n  .then(data => {\n    console.log('数据:', data);\n    return processData(data);\n  })\n  .then(result => saveToStorage(result))\n  .catch(error => console.error('错误:', error));\n\n// async/await 方式\nasync function fetchAndProcess() {\n  try {\n    const response = await fetch('/api/data');\n    const data = await response.json();\n    const result = await processData(data);\n    await saveToStorage(result);\n  } catch (error) {\n    console.error('错误:', error);\n  }\n}",
+        "tags": [
+            "异步",
+            "promise",
+            "前端"
+        ],
+        "createdAt": 1704585600000
+    }
+]
