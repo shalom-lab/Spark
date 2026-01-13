@@ -140,11 +140,10 @@ createApp({
         };
 
         const toggleTheme = () => {
-            themeMode.value = themeMode.value === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('spark_theme', themeMode.value);
-            applyTheme(themeMode.value);
-            // 更新 highlight.js 主题
-            updateHighlightTheme(themeMode.value);
+            const newMode = themeMode.value === 'dark' ? 'light' : 'dark';
+            themeMode.value = newMode;
+            localStorage.setItem('spark_theme', newMode);
+            // watch 会自动调用 applyTheme 和 updateHighlightTheme
         };
 
         // 更新 highlight.js 主题样式
@@ -162,10 +161,11 @@ createApp({
             }
         };
 
-        // 监听主题变化
+        // 监听主题变化（自动同步到 DOM）
         watch(themeMode, (newMode) => {
             applyTheme(newMode);
-        });
+            updateHighlightTheme(newMode);
+        }, { immediate: false });
 
         const resetView = () => {
             currentView.value = 'list';
