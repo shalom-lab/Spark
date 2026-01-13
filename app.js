@@ -1,5 +1,59 @@
 const { createApp, ref, computed, reactive, onMounted, watch, nextTick } = Vue;
 
+// ==================== 语言配置 ====================
+// 支持的语言列表和配色设置（方便后续修改）
+const LANGUAGE_CONFIG = [
+    {
+        value: 'JS',
+        label: 'JavaScript',
+        tagStyle: 'text-[#f7df1e] border border-[#f7df1e]/20',
+        colorDot: 'bg-[#f7df1e]',
+        hljsAlias: 'javascript'
+    },
+    {
+        value: 'R',
+        label: 'R',
+        tagStyle: 'text-[#276bba] border border-[#276bba]/20',
+        colorDot: 'bg-[#276bba]',
+        hljsAlias: 'r'
+    },
+    {
+        value: 'PYTHON',
+        label: 'Python',
+        tagStyle: 'text-[#3776ab] border border-[#3776ab]/20',
+        colorDot: 'bg-[#3776ab]',
+        hljsAlias: 'python'
+    },
+    {
+        value: 'YAML',
+        label: 'YAML',
+        tagStyle: 'text-[#cb171e] border border-[#cb171e]/20',
+        colorDot: 'bg-[#cb171e]',
+        hljsAlias: 'yaml'
+    },
+    {
+        value: 'SQL',
+        label: 'SQL',
+        tagStyle: 'text-[#336791] border border-[#336791]/20',
+        colorDot: 'bg-[#336791]',
+        hljsAlias: 'sql'
+    },
+    {
+        value: 'MD',
+        label: 'Markdown',
+        tagStyle: 'text-gray-400 border border-gray-400/20',
+        colorDot: 'bg-gray-400',
+        hljsAlias: 'markdown'
+    },
+    {
+        value: 'TEXT',
+        label: 'Plain Text',
+        tagStyle: 'text-gray-400 border border-gray-400/20',
+        colorDot: 'bg-gray-400',
+        hljsAlias: 'plaintext'
+    }
+];
+
 // 语言字典
 const I18N_DATA = {
     zh: {
@@ -17,8 +71,8 @@ const I18N_DATA = {
         settingsSubtitle: "配置中心与本地加密",
         githubToken: "GitHub 令牌",
         repoPath: "仓库路径",
-        masterPassword: "主密码 (AES 密钥)",
-        masterPasswordPlaceholder: "解锁本地加密缓存的钥匙",
+        masterPassword: "主密码 (可选，用于加密Token)",
+        masterPasswordPlaceholder: "可选：填写后Token将被加密存储",
         saveBtn: "同步并保存配置",
         magicLink: "保命书签",
         magicLinkDesc: "将配置加密为 URL。收藏它，清空缓存后点一下即可恢复。",
@@ -64,8 +118,8 @@ const I18N_DATA = {
         settingsSubtitle: "Config & Local Encryption",
         githubToken: "GitHub Token",
         repoPath: "Repository Path",
-        masterPassword: "Master Password",
-        masterPasswordPlaceholder: "Unlock local cache",
+        masterPassword: "Master Password (Optional)",
+        masterPasswordPlaceholder: "Optional: Encrypt token when provided",
         saveBtn: "Sync & Save Configuration",
         magicLink: "Magic Link",
         magicLinkDesc: "Encrypt your config into a URL bookmark for one-click recovery.",
@@ -122,7 +176,6 @@ createApp({
         const selectedLang = ref('');
         const toasts = ref([]);
         const sha = ref('');
-        const masterPassword = ref(localStorage.getItem('spark_master') || '');
         const bookmarkModal = reactive({ show: false, url: '' });
 
         const config = reactive({
@@ -173,34 +226,32 @@ createApp({
             selectedLang.value = '';
         };
 
-        const decryptStoredToken = () => {
-            const encrypted = localStorage.getItem('spark_token');
-            if (encrypted && masterPassword.value) {
-                try {
-                    const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
-                    const res = bytes.toString(CryptoJS.enc.Utf8);
-                    if (res) config.token = res;
-                } catch (e) { console.error('Decryption failed'); }
+        const toggleTag = (tag) => {
+            if (searchQuery.value.toLowerCase() === tag.toLowerCase()) {
+                searchQuery.value = '';
+            } else {
+                searchQuery.value = tag;
             }
+        };
+
+        const decryptStoredToken = () => {
+            const stored = localStorage.getItem('spark_token');
+            if (stored) config.token = stored;
         };
 
         const modal = reactive({ show: false, mode: 'add', currentId: null });
         const form = reactive({ title: '', lang: 'JS', code: '', tagsInput: '' });
         const langDropdownOpen = ref(false);
 
-        const langOptions = [
-            { value: 'JS', label: 'JavaScript' },
-            { value: 'R', label: 'R' },
-            { value: 'PYTHON', label: 'Python' },
-            { value: 'YAML', label: 'YAML' },
-            { value: 'SQL', label: 'SQL' },
-            { value: 'MD', label: 'Markdown' },
-            { value: 'TEXT', label: 'Plain Text' }
-        ];
+        // 从配置生成语言选项
+        const langOptions = LANGUAGE_CONFIG.map(lang => ({
+            value: lang.value,
+            label: lang.label
+        }));
 
         const getLangLabel = (value) => {
-            const option = langOptions.find(opt => opt.value === value);
-            return option ? option.label : value;
+            const config = LANGUAGE_CONFIG.find(lang => lang.value === value);
+            return config ? config.label : value;
         };
 
         const isReady = computed(() => !!(config.token && config.repo));
@@ -279,35 +330,26 @@ createApp({
         };
 
         const saveConfig = () => {
-            if (!masterPassword.value) return notify('decryptionFailed', 'error');
-            const encrypted = CryptoJS.AES.encrypt(config.token, masterPassword.value).toString();
-            localStorage.setItem('spark_token', encrypted);
+            localStorage.setItem('spark_token', config.token);
             localStorage.setItem('spark_repo', config.repo);
-            localStorage.setItem('spark_master', masterPassword.value);
             fetchData();
         };
-
-        const logout = () => { if (confirm('彻底登出？将销毁本地所有加密缓存。')) { localStorage.clear(); window.location.reload(); } };
 
         const generateMagicBookmark = () => {
             if (!isReady.value) return notify('fieldsIncomplete', 'error');
             const raw = `${config.token}|${config.repo}`;
-            const encrypted = masterPassword.value ? CryptoJS.AES.encrypt(raw, masterPassword.value).toString() : btoa(raw);
+            const encoded = btoa(raw);
             const baseUrl = window.location.href.split('#')[0];
-            bookmarkModal.url = `${baseUrl}#setup=${encodeURIComponent(encrypted)}`;
+            bookmarkModal.url = `${baseUrl}#setup=${encodeURIComponent(encoded)}`;
             bookmarkModal.show = true;
         };
 
         const checkUrlHash = () => {
             const hash = window.location.hash;
             if (hash.startsWith('#setup=')) {
-                const encrypted = decodeURIComponent(hash.split('=')[1]);
-                let raw = '';
+                const encoded = decodeURIComponent(hash.split('=')[1]);
                 try {
-                    if (masterPassword.value) {
-                        const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
-                        raw = bytes.toString(CryptoJS.enc.Utf8);
-                    } else { raw = atob(encrypted); }
+                    const raw = atob(encoded);
                     if (raw && raw.includes('|')) {
                         const [t_val, r_val] = raw.split('|');
                         config.token = t_val; config.repo = r_val;
@@ -362,44 +404,20 @@ createApp({
         };
 
         const getLangTagStyle = (l) => {
-            const map = {
-                JS: 'text-[#f7df1e] border border-[#f7df1e]/20',
-                R: 'text-[#276bba] border border-[#276bba]/20',
-                PYTHON: 'text-[#3776ab] border border-[#3776ab]/20',
-                YAML: 'text-[#cb171e] border border-[#cb171e]/20',
-                SQL: 'text-[#336791] border border-[#336791]/20',
-                MD: 'text-gray-400 border border-gray-400/20',
-                TEXT: 'text-gray-400 border border-gray-400/20'
-            };
-            return map[l.toUpperCase()] || 'text-gray-400 border border-white/5';
+            const config = LANGUAGE_CONFIG.find(lang => lang.value === l.toUpperCase());
+            return config ? config.tagStyle : 'text-gray-400 border border-white/5';
         };
 
         // 获取语言颜色点
         const getLangColorDot = (l) => {
-            const map = {
-                JS: 'bg-[#f7df1e]',
-                R: 'bg-[#276bba]',
-                PYTHON: 'bg-[#3776ab]',
-                YAML: 'bg-[#cb171e]',
-                SQL: 'bg-[#336791]',
-                MD: 'bg-gray-400',
-                TEXT: 'bg-gray-400'
-            };
-            return map[l.toUpperCase()] || 'bg-gray-400';
+            const config = LANGUAGE_CONFIG.find(lang => lang.value === l.toUpperCase());
+            return config ? config.colorDot : 'bg-gray-400';
         };
 
         // 将语言代码映射到 highlight.js 支持的语言别名
         const getLanguageAlias = (lang) => {
-            const langMap = {
-                'JS': 'javascript',
-                'PYTHON': 'python',
-                'R': 'r',
-                'YAML': 'yaml',
-                'SQL': 'sql',
-                'MD': 'markdown',
-                'TEXT': 'plaintext'
-            };
-            return langMap[lang.toUpperCase()] || 'plaintext';
+            const config = LANGUAGE_CONFIG.find(l => l.value === lang.toUpperCase());
+            return config ? config.hljsAlias : 'plaintext';
         };
 
         // 高亮代码
@@ -428,7 +446,7 @@ createApp({
             else if (localStorage.getItem('spark_token')) currentView.value = 'settings';
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag };
     }
 }).mount('#app');
 
