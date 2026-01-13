@@ -1,86 +1,14 @@
 [
     {
-        "id": "1",
-        "title": "Vue 3 响应式数据",
+        "id": "bookmark-storage",
+        "title": "书签存取信息",
         "lang": "JS",
-        "code": "import { ref, reactive, computed } from 'vue';\n\n// 基本响应式\nconst count = ref(0);\nconst state = reactive({\n  name: 'Spark',\n  age: 2024\n});\n\n// 计算属性\nconst doubleCount = computed(() => count.value * 2);\n\n// 使用\ncount.value++;\nconsole.log(doubleCount.value);",
+        "code": "// ==================== 书签存取信息 ====================\n// 核心思路：通过 URL hash 传递配置信息，实现 localStorage 数据的便捷存取\n// 适用场景：需要将配置信息保存为书签，下次使用时自动恢复配置\n\n// ========== 第一部分：生成书签链接（保存配置到 URL） ==========\nconst generateBookmark = () => {\n    // 1. 准备要保存的配置数据（可以是任何需要持久化的数据）\n    // 格式：用分隔符（如 |）连接多个配置项\n    const configData = {\n        token: 'ghp_xxxxxx',\n        repo: 'username/repo'\n    };\n    \n    // 2. 将配置对象转换为字符串格式\n    // 方式1：使用分隔符连接（适合简单数据）\n    const raw = `${configData.token}|${configData.repo}`;\n    \n    // 方式2：使用 JSON.stringify（适合复杂对象）\n    // const raw = JSON.stringify(configData);\n    \n    // 3. 使用 base64 编码，确保可以在 URL 中安全传输\n    const encoded = btoa(raw);\n    // 注意：btoa 只支持 ASCII，如果包含中文需要使用 encodeURIComponent + btoa\n    \n    // 4. 构建完整的书签 URL\n    const baseUrl = window.location.href.split('#')[0];\n    const bookmarkUrl = `${baseUrl}#setup=${encodeURIComponent(encoded)}`;\n    \n    // 5. 返回或显示给用户复制\n    return bookmarkUrl;\n    // 用户操作：复制链接 -> 浏览器书签栏 -> 添加书签 -> 粘贴到\"网址\"栏\n};\n\n// ========== 第二部分：从 URL hash 读取配置并保存到 localStorage ==========\nconst restoreFromBookmark = () => {\n    // 1. 读取 URL hash（# 后面的部分）\n    const hash = window.location.hash;\n    \n    // 2. 检查是否符合约定的格式（如 #setup=...）\n    if (hash.startsWith('#setup=')) {\n        try {\n            // 3. 提取并解码配置信息\n            const encoded = decodeURIComponent(hash.split('=')[1]);\n            const raw = atob(encoded);\n            \n            // 4. 解析配置数据\n            // 方式1：使用分隔符拆分（对应方式1的保存）\n            if (raw.includes('|')) {\n                const [token, repo] = raw.split('|');\n                // 保存到 localStorage\n                localStorage.setItem('spark_token', token);\n                localStorage.setItem('spark_repo', repo);\n            }\n            \n            // 方式2：使用 JSON.parse（对应方式2的保存）\n            // const configData = JSON.parse(raw);\n            // Object.entries(configData).forEach(([key, value]) => {\n            //     localStorage.setItem(`config_${key}`, value);\n            // });\n            \n            // 5. 清除 URL hash，保持 URL 干净（可选）\n            setTimeout(() => {\n                history.replaceState(null, document.title, window.location.pathname);\n            }, 2000);\n            \n            return true;\n        } catch (e) {\n            console.error('恢复配置失败:', e);\n            return false;\n        }\n    }\n    return false;\n};\n\n// ========== 使用示例 ==========\n// 页面加载时自动检查并恢复配置\nwindow.addEventListener('load', () => {\n    restoreFromBookmark();\n});\n\n// ========== 核心优势 ==========\n// 1. 无需服务器：配置信息完全存储在 URL 中\n// 2. 跨设备同步：通过书签可以在不同设备间同步配置\n// 3. 便捷恢复：点击书签即可自动恢复，无需手动输入\n// 4. 安全传输：base64 编码确保 URL 安全（注意：不是加密，只是编码）\n// 5. 持久化：恢复后保存到 localStorage，即使清除 URL hash 也能保留\n\n// ========== 扩展思路 ==========\n// 1. 可以添加加密层：使用 AES 加密后再 base64 编码（需要主密码）\n// 2. 可以支持多个配置项：使用 JSON 格式存储复杂对象\n// 3. 可以添加过期时间：在配置数据中包含时间戳，检查是否过期\n// 4. 可以添加校验：使用 hash 或签名验证配置完整性",
         "tags": [
-            "vue",
-            "响应式",
-            "前端"
+            "url-hash",
+            "localstorage",
+            "配置项"
         ],
         "createdAt": 1704067200000
-    },
-    {
-        "id": "2",
-        "title": "Python 快速排序",
-        "lang": "PYTHON",
-        "code": "def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    \n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    \n    return quicksort(left) + middle + quicksort(right)\n\n# 使用示例\nnumbers = [3, 6, 8, 10, 1, 2, 1]\nprint(quicksort(numbers))",
-        "tags": [
-            "算法",
-            "排序",
-            "python"
-        ],
-        "createdAt": 1704153600000
-    },
-    {
-        "id": "3",
-        "title": "SQL 查询优化技巧",
-        "lang": "SQL",
-        "code": "-- 使用索引优化查询\nSELECT u.id, u.name, o.total\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nWHERE u.created_at > '2024-01-01'\n  AND o.status = 'completed'\nORDER BY o.total DESC\nLIMIT 10;\n\n-- 添加索引建议\n-- CREATE INDEX idx_users_created ON users(created_at);\n-- CREATE INDEX idx_orders_user_status ON orders(user_id, status);",
-        "tags": [
-            "数据库",
-            "优化",
-            "sql"
-        ],
-        "createdAt": 1704240000000
-    },
-    {
-        "id": "4",
-        "title": "R 数据可视化",
-        "lang": "R",
-        "code": "library(ggplot2)\nlibrary(dplyr)\n\n# 创建示例数据\ndata <- data.frame(\n  x = 1:100,\n  y = rnorm(100, mean = 50, sd = 10)\n)\n\n# 绘制散点图\nggplot(data, aes(x = x, y = y)) +\n  geom_point(color = 'indigo', alpha = 0.6) +\n  geom_smooth(method = 'lm', se = TRUE) +\n  theme_minimal() +\n  labs(title = '数据分布图', x = 'X轴', y = 'Y轴')",
-        "tags": [
-            "可视化",
-            "数据分析",
-            "r"
-        ],
-        "createdAt": 1704326400000
-    },
-    {
-        "id": "5",
-        "title": "YAML 配置文件示例",
-        "lang": "YAML",
-        "code": "server:\n  port: 8080\n  host: localhost\n\ndatabase:\n  host: db.example.com\n  port: 5432\n  name: spark_db\n  credentials:\n    username: admin\n    password: ${DB_PASSWORD}\n\nfeatures:\n  dark_mode: true\n  i18n:\n    default: zh-CN\n    supported:\n      - zh-CN\n      - en-US",
-        "tags": [
-            "配置",
-            "yaml",
-            "devops"
-        ],
-        "createdAt": 1704412800000
-    },
-    {
-        "id": "6",
-        "title": "Markdown 常用语法",
-        "lang": "MD",
-        "code": "# 标题\n\n## 二级标题\n\n**粗体文本** 和 *斜体文本*\n\n- 无序列表项 1\n- 无序列表项 2\n\n1. 有序列表项 1\n2. 有序列表项 2\n\n`行内代码`\n\n```javascript\n// 代码块\nconst hello = 'World';\n```\n\n[链接文本](https://example.com)",
-        "tags": [
-            "文档",
-            "markdown",
-            "写作"
-        ],
-        "createdAt": 1704499200000
-    },
-    {
-        "id": "7",
-        "title": "JavaScript 异步处理",
-        "lang": "JS",
-        "code": "// Promise 链式调用\nfetch('/api/data')\n  .then(response => response.json())\n  .then(data => {\n    console.log('数据:', data);\n    return processData(data);\n  })\n  .then(result => saveToStorage(result))\n  .catch(error => console.error('错误:', error));\n\n// async/await 方式\nasync function fetchAndProcess() {\n  try {\n    const response = await fetch('/api/data');\n    const data = await response.json();\n    const result = await processData(data);\n    await saveToStorage(result);\n  } catch (error) {\n    console.error('错误:', error);\n  }\n}",
-        "tags": [
-            "异步",
-            "promise",
-            "前端"
-        ],
-        "createdAt": 1704585600000
     }
 ]
