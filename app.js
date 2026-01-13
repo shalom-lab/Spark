@@ -357,6 +357,20 @@ createApp({
             return map[l.toUpperCase()] || 'text-gray-400 border border-white/5';
         };
 
+        // 获取语言颜色点
+        const getLangColorDot = (l) => {
+            const map = {
+                JS: 'bg-[#f7df1e]',
+                R: 'bg-[#276bba]',
+                PYTHON: 'bg-[#3776ab]',
+                YAML: 'bg-[#cb171e]',
+                SQL: 'bg-[#336791]',
+                MD: 'bg-gray-400',
+                TEXT: 'bg-gray-400'
+            };
+            return map[l.toUpperCase()] || 'bg-gray-400';
+        };
+
         // 将语言代码映射到 highlight.js 支持的语言别名
         const getLanguageAlias = (lang) => {
             const langMap = {
@@ -397,7 +411,7 @@ createApp({
             else if (localStorage.getItem('spark_token')) currentView.value = 'settings';
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings };
     }
 }).mount('#app');
 

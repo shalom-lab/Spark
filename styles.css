@@ -40,6 +40,16 @@ body {
     border-radius: 10px;
 }
 
+/* 隐藏代码区域的滚动条 */
+.editor-window pre::-webkit-scrollbar {
+    display: none;
+}
+
+.editor-window pre {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 /* 导航栏 */
 header {
     z-index: 100;
