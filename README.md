@@ -1,60 +1,72 @@
+<div align="center">
+
 # ✨ Spark
 
-> 灵感与代码保险库 · 优雅的代码片段管理工具
+**灵感与代码保险库 · 优雅的代码片段管理工具**
 
-[![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js)](https://vuejs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-Sync-181717?logo=github)](https://github.com)
+[![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Sync-181717?logo=github&logoColor=white)](https://github.com)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+[📖 使用文档](#-快速开始) · [🐛 问题反馈](https://github.com/shalom-lab/Spark/issues) · [⭐ Star](https://github.com/shalom-lab/Spark)
+
+</div>
 
 ---
 
 ## 🎯 特性
 
-<table>
-<tr>
-<td width="50%">
+<div align="center">
 
-- 🎨 **美观界面** - macOS 风格设计，深色/浅色主题
-- 🔍 **智能搜索** - 标题、代码、关键词多维度搜索
-- 🏷️ **标签系统** - 彩色标签云，一键筛选
+| 🎨 界面设计 | 🔍 搜索功能 | 🏷️ 标签系统 |
+|:---:|:---:|:---:|
+| macOS 风格设计<br>深色/浅色主题 | 标题/代码/关键词搜索<br>`#标签` 精确匹配 | 彩色标签云<br>一键筛选切换 |
 
-</td>
-<td width="50%">
+| 💾 云端同步 | 🔖 配置恢复 | 🌐 多语言 |
+|:---:|:---:|:---:|
+| GitHub 自动备份<br>数据安全可靠 | 书签一键恢复<br>跨设备同步 | 中文/英文界面<br>无缝切换 |
 
-- 💾 **云端同步** - GitHub 自动备份
-- 🔖 **配置恢复** - 书签一键恢复配置
-- 🌐 **多语言** - 中文/英文界面
-
-</td>
-</tr>
-</table>
+</div>
 
 ---
 
 ## 🚀 快速开始
 
-### 1️⃣ 打开使用
-
-直接在浏览器中打开 `index.html` 即可使用，无需安装。
-
-### 2️⃣ Fork 仓库
+### 1️⃣ Fork 仓库
 
 Fork 本项目到你的 GitHub 账号，数据将存储在 `snippets.json` 文件中。
 
-### 3️⃣ 配置 GitHub Token
+### 2️⃣ 部署到 GitHub Pages
 
-```bash
-设置 → 填写 GitHub Token 和仓库路径 → 保存
-```
+1. 进入你 Fork 的仓库
+2. 点击 **Settings** → **Pages**
+3. 在 **Source** 中选择 **Deploy from a branch**
+4. 选择分支：**master**（或 **main**）
+5. 选择文件夹：**/ (root)**
+6. 点击 **Save**
+7. 等待几分钟后，访问 `https://你的用户名.github.io/Spark` 即可
 
-**获取 Fine-grained Token：**
-- 前往 [GitHub Settings > Developer settings > Fine-grained tokens](https://github.com/settings/tokens?type=beta)
-- 创建新 Token，选择你 Fork 的仓库
-- 权限设置：仅需 `Contents: Read and write` 权限
-- 格式：`github_pat_xxxxxx`
-- ✅ 更安全：仅对指定仓库有效，权限更精细
+### 3️⃣ 使用方法
 
-**仓库格式：** `你的用户名/Spark`（你 Fork 后的仓库路径）
+1. 打开部署后的页面
+2. 点击 **设置**（右上角齿轮图标）
+3. 输入 **GitHub Token** 和 **仓库路径**
+4. 点击 **同步并保存配置**
+
+<details>
+<summary><b>📝 获取 Fine-grained Token（点击展开）</b></summary>
+
+1. 前往 [GitHub Settings > Fine-grained tokens](https://github.com/settings/tokens?type=beta)
+2. 创建新 Token，选择你 Fork 的仓库
+3. 权限设置：仅需 `Contents: Read and write` 权限
+4. 格式：`github_pat_xxxxxx`
+
+✅ **优势**：仅对指定仓库有效，权限更精细，更安全
+
+</details>
+
+**仓库格式：** `你的用户名/Spark`
 
 ### 4️⃣ 开始使用
 
@@ -62,17 +74,15 @@ Fork 本项目到你的 GitHub 账号，数据将存储在 `snippets.json` 文�
 
 ---
 
-## 📸 功能展示
-
-### 核心功能
+## 📸 核心功能
 
 | 功能 | 说明 |
-|------|------|
-| **代码片段管理** | 添加、编辑、删除、复制代码片段 |
-| **智能搜索** | 输入 `#标签名` 精确匹配标签，或输入关键词搜索标题/代码内容 |
-| **语言筛选** | 按 JavaScript、Python、R、SQL 等筛选 |
-| **标签切换** | 点击标签切换筛选状态 |
-| **配置备份** | 生成书签链接，跨设备同步配置 |
+|:---:|:---|
+| 📝 **代码片段管理** | 添加、编辑、删除、复制代码片段 |
+| 🔍 **智能搜索** | 输入 `#标签名` 精确匹配标签，或输入关键词搜索标题/代码内容 |
+| 🎨 **语言筛选** | 按 JavaScript、Python、R、SQL 等筛选 |
+| 🏷️ **标签切换** | 点击标签切换筛选状态 |
+| 🔖 **配置备份** | 生成书签链接，跨设备同步配置 |
 
 ---
 
@@ -110,29 +120,37 @@ Spark/
 
 ## 🛠️ 技术栈
 
-- **Vue 3** - 响应式框架
-- **Tailwind CSS** - 样式框架
-- **Highlight.js** - 代码高亮
-- **GitHub API** - 数据同步
+<div align="center">
+
+![Vue 3](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![GitHub API](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+
+</div>
 
 ---
 
 ## 💡 使用技巧
 
-- 🔍 **搜索功能**：
+<div align="left">
+
+- 🔍 **搜索功能**
   - 输入 `#标签名` 精确匹配标签（如 `#vue`、`#python`）
   - 输入普通关键词搜索标题、代码内容和标签
 - 📋 点击代码区域快速复制
 - 🎯 点击已选标签可取消筛选
 - 🔖 保存书签链接，方便配置恢复
 
+</div>
+
 ---
 
 ## 🔒 数据安全
 
-- Token 存储在本地 localStorage
-- 数据同步到 GitHub 私有仓库
-- 支持 JSON 导出备份
+- ✅ Token 存储在本地 localStorage
+- ✅ 数据同步到 GitHub 私有仓库
+- ✅ 支持 JSON 导出备份
 
 ---
 
@@ -144,8 +162,8 @@ Spark/
 
 <div align="center">
 
-**[📖 使用文档](#) · [🐛 问题反馈](https://github.com/shalom-lab/Spark/issues) · [⭐ Star](https://github.com/shalom-lab/Spark)**
+### Made with ❤️ by [shalom-lab](https://github.com/shalom-lab)
 
-Made with ❤️ by [shalom-lab](https://github.com/shalom-lab)
+**[⬆ 返回顶部](#-spark)**
 
 </div>
