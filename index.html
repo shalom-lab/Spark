@@ -29,7 +29,7 @@
 
         <!-- 顶栏 -->
         <header
-            class="h-16 glass-nav flex items-center px-6 shrink-0 border-b border-gray-200 dark:border-white/10 bg-white/70 dark:bg-black/70">
+            class="h-16 flex items-center px-6 shrink-0 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-black">
             <div class="flex items-center gap-4 group cursor-pointer shrink-0" @click="resetView">
                 <div
                     class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg transition-transform group-hover:rotate-12">
@@ -164,7 +164,7 @@
                         <!-- 代码编辑器网格 -->
                         <div v-else class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8">
                             <div v-for="s in filteredSnippets" :key="s.id"
-                                class="editor-window rounded-lg h-[400px] border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e] shadow-sm">
+                                class="editor-window rounded-lg h-[320px] border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e] shadow-sm">
                                 <!-- macOS 标题栏 -->
                                 <div
                                     class="px-4 py-3 flex items-center border-b border-gray-100 dark:border-white/5 shrink-0 bg-gray-50/50 dark:bg-[#2c2c2e]/50">
@@ -183,7 +183,7 @@
 
                                 <!-- 代码区 -->
                                 <div class="relative flex-grow overflow-hidden group/code bg-white dark:bg-[#000000]">
-                                    <pre class="code-font text-[13px] p-5 h-full overflow-auto leading-relaxed cursor-pointer transition-colors hljs"
+                                    <pre class="code-font text-[14px] p-5 h-full overflow-auto leading-relaxed cursor-pointer transition-colors hljs"
                                         @click="copy(s.code)"><code :class="'language-' + getLanguageAlias(s.lang)" v-html="highlightCode(s.code, s.lang)"></code></pre>
                                     <div
                                         class="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover/code:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
@@ -198,25 +198,28 @@
                                     class="px-4 py-2.5 border-t border-gray-100 dark:border-white/5 flex justify-between items-center shrink-0 bg-gray-50/50 dark:bg-[#141417]">
                                     <div class="flex flex-wrap gap-2 overflow-hidden h-5">
                                         <button v-for="tag in s.tags" :key="tag" @click="searchQuery = tag"
-                                            class="text-[10px] font-bold text-gray-400 hover:text-indigo-500 transition-colors uppercase italic">#{{
-                                            tag }}</button>
+                                            class="text-[10px] font-bold text-gray-400 hover:text-indigo-500 transition-colors uppercase">#{{ tag }}</button>
                                     </div>
                                     <div
-                                        class="flex gap-3 ml-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                        <button @click="openModal('edit', s)"
-                                            class="text-gray-400 hover:text-indigo-500 transition scale-90"><svg
-                                                class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="flex gap-3 ml-4 shrink-0">
+                                        <button @click.stop="openModal('edit', s)"
+                                            class="text-gray-400 hover:text-indigo-500 transition p-1 rounded hover:bg-indigo-500/10"
+                                            :title="t('refineSpark')">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
                                                 </path>
-                                            </svg></button>
-                                        <button @click="deleteSnippet(s.id)"
-                                            class="text-gray-400 hover:text-red-500 transition scale-90"><svg
-                                                class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="deleteSnippet(s.id)"
+                                            class="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-red-500/10"
+                                            title="删除">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                                 </path>
-                                            </svg></button>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

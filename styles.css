@@ -34,10 +34,8 @@ body {
     border-radius: 10px;
 }
 
-/* 磨砂玻璃导航 */
-.glass-nav {
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+/* 导航栏 */
+header {
     z-index: 100;
 }
 
