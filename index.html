@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark | 灵感与代码保险库</title>
+    <!-- 核心依赖 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a;
+        }
+        .code-font { font-family: 'Fira Code', monospace; }
+        [v-cloak] { display: none; }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        /* 高级毛玻璃 */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        /* 灵感火花卡片动画 */
+        .spark-card {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid #f1f5f9;
+        }
+        .spark-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 40px -15px rgba(99, 102, 241, 0.15);
+            border-color: #6366f1;
+        }
+
+        /* 吐司动画 */
+        .toast-enter-active, .toast-leave-active { transition: all 0.4s ease; }
+        .toast-enter-from { transform: translateY(50px); opacity: 0; }
+        .toast-leave-to { transform: translateX(50px); opacity: 0; }
+
+        .btn-active:active { transform: scale(0.96); }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+    <div id="app" v-cloak class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- 导航栏 -->
+        <header class="h-16 glass-nav flex items-center justify-between px-8 shrink-0 z-40">
+            <div class="flex items-center gap-4 group cursor-pointer" @click="selectedLang = ''">
+                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 group-hover:rotate-12 transition-transform duration-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-900 tracking-tight leading-none italic">Spark</h1>
+                    <p class="text-[9px] text-indigo-500 font-bold uppercase tracking-[0.2em] mt-1">Insight Repository</p>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="flex-1 max-w-2xl px-12">
+                <div class="relative group">
+                    <input v-model="searchQuery" type="text" placeholder="搜索代码、标题、关键词..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 border-none rounded-2xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all">
+                    <svg class="w-5 h-5 text-gray-300 absolute left-4 top-2.5 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button v-if="isReady" @click="openModal('add')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl text-sm font-bold transition shadow-xl shadow-indigo-100 btn-active">
+                    添加灵感
+                </button>
+                <button @click="showSettings = true" :class="isReady ? 'text-slate-400' : 'text-amber-500 animate-pulse'" class="p-2.5 hover:bg-gray-100 rounded-2xl transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- 侧边栏分类 -->
+            <aside class="w-72 bg-white border-r border-slate-100 flex flex-col shrink-0">
+                <div class="p-8 flex-1 overflow-y-auto custom-scrollbar space-y-8">
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">代码洞察</h3>
+                        <nav class="space-y-1">
+                            <button @click="selectedLang = ''" :class="!selectedLang ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition group">
+                                <span class="flex items-center gap-3">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                                    全部 Spark
+                                </span>
+                                <span class="text-xs opacity-40">{{ snippets.length }}</span>
+                            </button>
+                            <button v-for="count, lang in langStats" :key="lang" @click="selectedLang = lang" :class="selectedLang === lang ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition uppercase group">
+                                <span>{{ lang }}</span>
+                                <span class="text-xs opacity-40 group-hover:opacity-100">{{ count }}</span>
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="pt-8 border-t border-slate-50">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">备份与恢复</h3>
+                        <button @click="generateMagicBookmark" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-black text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition shadow-sm mb-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            复制保命书签链接
+                        </button>
+                        <p class="text-[10px] text-slate-400 px-2 leading-relaxed">提示：收藏该链接。即使清空了浏览器，点一下书签即可通过主密码瞬时恢复 Token 配置。</p>
+                    </div>
+                </div>
+                
+                <div class="p-8 border-t border-slate-50">
+                    <button @click="logout" class="w-full py-3 text-[10px] text-red-400 font-black hover:text-red-600 hover:bg-red-50 rounded-2xl transition tracking-widest uppercase text-center">登出并清除</button>
+                </div>
+            </aside>
+
+            <!-- 主内容展示 -->
+            <main class="flex-1 overflow-y-auto p-8 lg:p-12 custom-scrollbar relative">
+                
+                <!-- 加载中 -->
+                <div v-if="loading" class="absolute inset-0 bg-white/60 backdrop-blur-md z-30 flex flex-col items-center justify-center">
+                    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-4 text-slate-500 font-extrabold tracking-tight">与 GitHub 中心同步中...</p>
+                </div>
+
+                <!-- 空状态 -->
+                <div v-if="!isReady" class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+                    <div class="w-24 h-24 bg-indigo-50 text-indigo-500 rounded-[32px] flex items-center justify-center mb-8 shadow-inner shadow-indigo-100/50">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">开启 Spark 旅程</h2>
+                    <p class="text-slate-500 text-sm mb-10 leading-relaxed font-medium">配置您的 GitHub 仓库以建立私人代码库。数据完全私有，永不丢失。</p>
+                    <button @click="showSettings = true" class="px-12 py-4 bg-slate-900 text-white rounded-3xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all">立即配置</button>
+                </div>
+
+                <!-- 灵感网格 -->
+                <div v-else class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-8 pb-20">
+                    <div v-for="s in filteredSnippets" :key="s.id" class="group bg-white rounded-[40px] flex flex-col h-[380px] overflow-hidden spark-card">
+                        <div class="p-8 flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-5">
+                                <div class="flex flex-col gap-1.5">
+                                    <span :class="getLangTag(s.lang)" class="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest w-fit shadow-sm">{{ s.lang }}</span>
+                                    <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors" :title="s.title">{{ s.title }}</h3>
+                                </div>
+                                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button @click="openModal('edit', s)" class="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+                                    <button @click="deleteSnippet(s.id)" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </div>
+                            </div>
+                            
+                            <!-- 代码/文本预览区 -->
+                            <div class="relative flex-grow bg-slate-900 rounded-[32px] overflow-hidden group/code shadow-inner border border-slate-800/50">
+                                <pre class="code-font text-xs p-6 text-slate-300 h-full overflow-hidden leading-relaxed cursor-pointer" @click="copy(s.code)">{{ s.code }}</pre>
+                                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 group-hover/code:opacity-100 transition-all flex items-center justify-center">
+                                    <button @click.stop="copy(s.code)" class="bg-white text-slate-900 px-10 py-3 rounded-2xl font-black shadow-2xl hover:scale-105 active:scale-95 transition-all tracking-tight uppercase text-xs">点击复制 Spark</button>
+                                </div>
+                            </div>
+
+                            <!-- 标签 -->
+                            <div class="mt-6 flex flex-wrap gap-2 min-h-[30px]">
+                                <span v-for="tag in s.tags" :key="tag" class="text-[10px] font-black text-slate-400 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 uppercase tracking-tighter hover:text-indigo-600 hover:bg-indigo-50 transition-colors">#{{ tag }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 设置面板 -->
+        <div v-if="showSettings" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md">
+            <div class="bg-white rounded-[50px] shadow-2xl w-full max-w-md p-12 animate-in zoom-in duration-300">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">安全与同步</h2>
+                    <button @click="showSettings = false" class="text-gray-300 hover:text-gray-600 transition"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">GitHub Token</label>
+                        <input type="password" v-model="config.token" placeholder="ghp_xxxxxx" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                        <a href="https://github.com/settings/tokens/new" target="_blank" class="text-[10px] text-indigo-500 ml-2 hover:underline">申请 Fine-grained Token</a>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">仓库名 (User/Repo)</label>
+                        <input type="text" v-model="config.repo" placeholder="yourname/repo" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">主密码 (用于加密存储)</label>
+                        <input type="password" v-model="masterPassword" placeholder="设置一个用于解锁的密码" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                    </div>
+                    <div class="pt-8">
+                        <button @click="saveConfig" class="w-full py-5 bg-indigo-600 text-white font-black rounded-[28px] hover:bg-indigo-700 shadow-2xl shadow-indigo-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">连接并同步数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 捕捉灵感编辑器 -->
+        <div v-if="modal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md">
+            <div class="bg-white rounded-[60px] shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+                <div class="px-12 py-10 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">{{ modal.mode === 'add' ? '捕捉灵感' : '编辑 Spark' }}</h2>
+                    <button @click="modal.show = false" class="p-2 hover:bg-gray-200 rounded-full transition"><svg class="w-10 h-10 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <div class="p-12 space-y-8 overflow-y-auto custom-scrollbar">
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">标题</label>
+                            <input type="text" v-model="form.title" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-bold" placeholder="起个响亮的名字...">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">语言 / 类型</label>
+                            <select v-model="form.lang" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-black uppercase">
+                                <option value="JS">JavaScript</option>
+                                <option value="R">R Language</option>
+                                <option value="PYTHON">Python</option>
+                                <option value="YAML">YAML</option>
+                                <option value="SQL">SQL</option>
+                                <option value="SHELL">Shell / Bash</option>
+                                <option value="MD">Markdown</option>
+                                <option value="TEXT">Plain Text</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">内容</label>
+                        <textarea v-model="form.code" rows="12" class="code-font w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-[40px] p-8 outline-none transition-all text-xs leading-relaxed" placeholder="在此粘贴代码、灵感、或纯文本..."></textarea>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">关键词 (空格分隔)</label>
+                        <input type="text" v-model="form.tagsInput" placeholder="例如: helper data-viz api" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-medium">
+                    </div>
+                </div>
+                <div class="px-12 py-10 border-t border-slate-50 bg-white flex justify-end gap-6">
+                    <button @click="modal.show = false" class="px-12 py-4 text-slate-400 font-black hover:bg-slate-50 rounded-3xl transition uppercase text-xs tracking-widest">取消</button>
+                    <button @click="saveSnippet" :disabled="syncing" class="px-20 py-4 bg-indigo-600 text-white font-black rounded-[32px] hover:bg-indigo-700 shadow-2xl shadow-indigo-100 transition-all flex items-center gap-4 active:scale-95 tracking-widest uppercase text-sm">
+                        <span v-if="syncing" class="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
+                        {{ syncing ? '正在推送...' : '同步至 GitHub' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 吐司消息通知 -->
+        <div class="fixed bottom-12 right-12 z-[100] flex flex-col gap-4 pointer-events-none">
+            <transition-group name="toast-slide">
+                <div v-for="t in toasts" :key="t.id" :class="t.type === 'error' ? 'bg-red-600 shadow-red-200' : 'bg-gray-900 shadow-2xl shadow-gray-900/40'" class="px-8 py-5 rounded-[28px] text-white flex items-center gap-5">
+                    <div v-if="t.type !== 'error'" class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+                    <span class="text-sm font-black tracking-tight">{{ t.msg }}</span>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, reactive, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const snippets = ref([]);
+                const loading = ref(false);
+                const syncing = ref(false);
+                const showSettings = ref(false);
+                const searchQuery = ref('');
+                const selectedLang = ref('');
+                const toasts = ref([]);
+                const sha = ref('');
+                const masterPassword = ref(localStorage.getItem('spark_master') || '');
+
+                const config = reactive({
+                    token: '',
+                    repo: localStorage.getItem('spark_repo') || '',
+                    path: 'snippets.json'
+                });
+
+                const decryptStoredToken = () => {
+                    const encrypted = localStorage.getItem('spark_token');
+                    if (encrypted && masterPassword.value) {
+                        try {
+                            const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
+                            config.token = bytes.toString(CryptoJS.enc.Utf8);
+                        } catch (e) { console.error('解密失败'); }
+                    }
+                };
+
+                const modal = reactive({ show: false, mode: 'add', currentId: null });
+                const form = reactive({ title: '', lang: 'JS', code: '', tagsInput: '' });
+
+                const isReady = computed(() => !!(config.token && config.repo));
+
+                const langStats = computed(() => {
+                    const stats = {};
+                    snippets.value.forEach(s => { stats[s.lang] = (stats[s.lang] || 0) + 1; });
+                    return stats;
+                });
+
+                const filteredSnippets = computed(() => {
+                    return snippets.value.filter(s => {
+                        const q = searchQuery.value.toLowerCase();
+                        const matchSearch = s.title.toLowerCase().includes(q) || s.code.toLowerCase().includes(q) || s.tags.some(t => t.toLowerCase().includes(q));
+                        const matchLang = !selectedLang.value || s.lang === selectedLang.value;
+                        return matchSearch && matchLang;
+                    }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                });
+
+                const notify = (msg, type = 'success') => {
+                    const id = Date.now();
+                    toasts.value.push({ id, msg, type });
+                    setTimeout(() => toasts.value = toasts.value.filter(t => t.id !== id), 3000);
+                };
+
+                const fetchData = async () => {
+                    if (!isReady.value) return;
+                    loading.value = true;
+                    try {
+                        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
+                            headers: { 'Authorization': `token ${config.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                        });
+                        if (!res.ok) throw new Error('同步失败，请检查配置');
+                        const data = await res.json();
+                        sha.value = data.sha;
+                        const decoded = new TextDecoder().decode(Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0)));
+                        snippets.value = JSON.parse(decoded);
+                        showSettings.value = false;
+                        notify('GitHub 同步成功');
+                    } catch (e) { notify(e.message, 'error'); showSettings.value = true; }
+                    finally { loading.value = false; }
+                };
+
+                const updateRemote = async (newData) => {
+                    syncing.value = true;
+                    try {
+                        const contentStr = JSON.stringify(newData, null, 2);
+                        const base64 = btoa(unescape(encodeURIComponent(contentStr)));
+                        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
+                            method: 'PUT',
+                            headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: `Sync Spark: ${new Date().toLocaleString()}`, content: base64, sha: sha.value })
+                        });
+                        if (!res.ok) throw new Error('推送失败');
+                        const result = await res.json();
+                        sha.value = result.content.sha;
+                        snippets.value = newData;
+                        notify('已同步至 GitHub');
+                        return true;
+                    } catch (e) { notify(e.message, 'error'); return false; }
+                    finally { syncing.value = false; }
+                };
+
+                const saveConfig = () => {
+                    if (!masterPassword.value) return notify('设置主密码以加密存储 Token', 'error');
+                    const encrypted = CryptoJS.AES.encrypt(config.token, masterPassword.value).toString();
+                    localStorage.setItem('spark_token', encrypted);
+                    localStorage.setItem('spark_repo', config.repo);
+                    localStorage.setItem('spark_master', masterPassword.value);
+                    fetchData();
+                };
+
+                const logout = () => { if (confirm('确认清除所有本地配置吗？')) { localStorage.clear(); window.location.reload(); } };
+
+                const generateMagicBookmark = () => {
+                    const raw = `${config.token}|${config.repo}`;
+                    const encrypted = masterPassword.value ? CryptoJS.AES.encrypt(raw, masterPassword.value).toString() : btoa(raw);
+                    const url = `${window.location.origin}${window.location.pathname}#setup=${encodeURIComponent(encrypted)}`;
+                    
+                    const el = document.createElement('textarea');
+                    el.value = url;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    notify('保命书签链接已复制！存入书签栏即可。');
+                };
+
+                const checkUrlHash = () => {
+                    const hash = window.location.hash;
+                    if (hash.startsWith('#setup=')) {
+                        const encrypted = decodeURIComponent(hash.split('=')[1]);
+                        let raw = '';
+                        try {
+                            if (masterPassword.value) {
+                                const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
+                                raw = bytes.toString(CryptoJS.enc.Utf8);
+                            } else { raw = atob(encrypted); }
+                            
+                            if (raw && raw.includes('|')) {
+                                const [t, r] = raw.split('|');
+                                config.token = t; config.repo = r;
+                                saveConfig();
+                                notify('✨ 暗号对接成功，配置已恢复');
+                                history.replaceState(null, document.title, window.location.pathname);
+                            }
+                        } catch (e) { notify('书签解密失败', 'error'); }
+                    }
+                };
+
+                const openModal = (mode, s = null) => {
+                    modal.mode = mode;
+                    if (mode === 'edit' && s) {
+                        modal.currentId = s.id; form.title = s.title; form.lang = s.lang; form.code = s.code;
+                        form.tagsInput = s.tags.join(' ');
+                    } else {
+                        modal.currentId = null; form.title = ''; form.lang = 'JS'; form.code = ''; form.tagsInput = '';
+                    }
+                    modal.show = true;
+                };
+
+                const saveSnippet = async () => {
+                    if (!form.title || !form.code) return notify('标题内容不能为空', 'error');
+                    const tagList = form.tagsInput.split(/[,\s]+/).filter(t => t.trim());
+                    let newList;
+                    if (modal.mode === 'add') {
+                        newList = [...snippets.value, { id: Date.now().toString(), title: form.title, lang: form.lang, code: form.code, tags: tagList, createdAt: Date.now() }];
+                    } else {
+                        newList = snippets.value.map(s => s.id === modal.currentId ? { ...s, title: form.title, lang: form.lang, code: form.code, tags: tagList } : s);
+                    }
+                    if (await updateRemote(newList)) modal.show = false;
+                };
+
+                const deleteSnippet = (id) => { if (confirm('永久删除该灵感？')) updateRemote(snippets.value.filter(s => s.id !== id)); };
+
+                const copy = (txt) => {
+                    const el = document.createElement('textarea');
+                    el.value = txt;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    notify('Spark 已复制到剪贴板');
+                };
+
+                const getLangTag = (l) => {
+                    const map = { 
+                        JS: 'bg-yellow-400 text-yellow-900', R: 'bg-blue-600 text-white', PYTHON: 'bg-emerald-500 text-white', 
+                        YAML: 'bg-indigo-600 text-white', SQL: 'bg-pink-500 text-white', MD: 'bg-slate-700 text-white', 
+                        TEXT: 'bg-slate-300 text-slate-700' 
+                    };
+                    return map[l.toUpperCase()] || 'bg-gray-200 text-gray-700';
+                };
+
+                onMounted(() => { 
+                    decryptStoredToken(); 
+                    checkUrlHash(); 
+                    if (isReady.value) fetchData(); 
+                    else if (localStorage.getItem('spark_token')) showSettings.value = true;
+                });
+
+                return { config, snippets, loading, syncing, showSettings, searchQuery, selectedLang, langStats, filteredSnippets, toasts, modal, form, masterPassword, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTag, isReady };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
