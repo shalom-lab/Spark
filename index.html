@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,270 +9,610 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        // 配置 Tailwind 支持暗黑模式
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
-            color: #0f172a;
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@450;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-font-smoothing: antialiased;
         }
-        .code-font { font-family: 'Fira Code', monospace; }
-        [v-cloak] { display: none; }
 
-        /* 滚动条美化 */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
 
-        /* 高级毛玻璃 */
+        [v-cloak] {
+            display: none;
+        }
+
+        /* 极简滚动条 */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 10px;
+        }
+
+        .light ::-webkit-scrollbar-thumb {
+            background: #d2d2d7;
+            border-radius: 10px;
+        }
+
+        /* 磨砂玻璃导航 */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            z-index: 100;
         }
 
-        /* 灵感火花卡片动画 */
-        .spark-card {
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            border: 1px solid #f1f5f9;
-        }
-        .spark-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 25px 40px -15px rgba(99, 102, 241, 0.15);
-            border-color: #6366f1;
+        /* 编辑器窗口风格 */
+        .editor-window {
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border-width: 1px;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* 吐司动画 */
-        .toast-enter-active, .toast-leave-active { transition: all 0.4s ease; }
-        .toast-enter-from { transform: translateY(50px); opacity: 0; }
-        .toast-leave-to { transform: translateX(50px); opacity: 0; }
+        .editor-window:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
 
-        .btn-active:active { transform: scale(0.96); }
+        /* 动画 */
+        .view-fade-enter-active,
+        .view-fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+
+        .view-fade-enter-from,
+        .view-fade-leave-to {
+            opacity: 0;
+        }
+
+        .btn-press:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden">
-    <div id="app" v-cloak class="flex-1 flex flex-col h-full overflow-hidden">
-        
-        <!-- 导航栏 -->
-        <header class="h-16 glass-nav flex items-center justify-between px-8 shrink-0 z-40">
-            <div class="flex items-center gap-4 group cursor-pointer" @click="selectedLang = ''">
-                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 group-hover:rotate-12 transition-transform duration-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+
+<body :class="themeMode">
+    <div id="app" v-cloak
+        class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100">
+
+        <!-- 顶栏 -->
+        <header
+            class="h-16 glass-nav flex items-center px-6 shrink-0 border-b border-gray-200 dark:border-white/10 bg-white/70 dark:bg-black/70">
+            <div class="flex items-center gap-4 group cursor-pointer shrink-0" @click="resetView">
+                <div
+                    class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg transition-transform group-hover:rotate-12">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
                 </div>
-                <div>
-                    <h1 class="text-xl font-black text-slate-900 tracking-tight leading-none italic">Spark</h1>
-                    <p class="text-[9px] text-indigo-500 font-bold uppercase tracking-[0.2em] mt-1">Insight Repository</p>
-                </div>
+                <h1 class="text-base font-bold tracking-tight italic">Spark</h1>
             </div>
 
             <!-- 搜索框 -->
-            <div class="flex-1 max-w-2xl px-12">
-                <div class="relative group">
-                    <input v-model="searchQuery" type="text" placeholder="搜索代码、标题、关键词..." class="w-full pl-12 pr-4 py-2.5 bg-slate-100 border-none rounded-2xl text-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all">
-                    <svg class="w-5 h-5 text-gray-300 absolute left-4 top-2.5 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="flex-1 flex justify-center px-4 md:px-12" v-if="currentView === 'list'">
+                <div class="relative w-full max-w-xl group">
+                    <input v-model="searchQuery" type="text" :placeholder="t('searchPlaceholder')"
+                        class="w-full pl-10 pr-4 py-1.5 rounded-lg text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all border border-transparent bg-gray-200/50 dark:bg-white/10 dark:text-white focus:bg-white dark:focus:bg-white/10">
+                    <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-2.5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </div>
             </div>
+            <div class="flex-1" v-else></div>
 
-            <div class="flex items-center gap-4">
-                <button v-if="isReady" @click="openModal('add')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl text-sm font-bold transition shadow-xl shadow-indigo-100 btn-active">
-                    添加灵感
+            <!-- 右侧功能区 -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- 主题切换 -->
+                <button @click="toggleTheme"
+                    class="p-2 rounded-lg transition btn-press hover:bg-gray-100 dark:hover:bg-white/10"
+                    :title="t('themeToggle')">
+                    <svg v-if="themeMode === 'light'" class="w-5 h-5 text-indigo-600" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg v-else class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464l-.707-.707a1 1 0 00-1.414 1.414l.707.707a1 1 0 001.414-1.414zm2.12 8.485l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                        </path>
+                    </svg>
                 </button>
-                <button @click="showSettings = true" :class="isReady ? 'text-slate-400' : 'text-amber-500 animate-pulse'" class="p-2.5 hover:bg-gray-100 rounded-2xl transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+
+                <!-- 语言切换 -->
+                <button @click="toggleLang"
+                    class="p-2 rounded-lg text-xs font-black transition btn-press border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10">
+                    {{ currentLang === 'zh' ? 'EN' : 'ZH' }}
+                </button>
+
+                <button v-if="isConnected && currentView === 'list'" @click="openModal('add')"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition btn-press shadow-lg shadow-indigo-500/20">
+                    {{ t('newSnip') }}
+                </button>
+
+                <button @click="toggleSettings"
+                    :class="currentView === 'settings' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10'"
+                    class="p-2 rounded-lg transition btn-press">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
                 </button>
             </div>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <!-- 侧边栏分类 -->
-            <aside class="w-72 bg-white border-r border-slate-100 flex flex-col shrink-0">
-                <div class="p-8 flex-1 overflow-y-auto custom-scrollbar space-y-8">
+            <!-- 侧边栏 -->
+            <aside v-if="currentView === 'list'"
+                class="w-60 flex flex-col shrink-0 hidden md:flex border-r border-gray-200 dark:border-white/5 bg-white dark:bg-black transition-colors">
+                <div class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-10">
+                    <!-- 类型筛选 -->
                     <div>
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">代码洞察</h3>
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 px-3">{{
+                            t('filter') }}</h3>
                         <nav class="space-y-1">
-                            <button @click="selectedLang = ''" :class="!selectedLang ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition group">
-                                <span class="flex items-center gap-3">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-                                    全部 Spark
+                            <button @click="selectedLang = ''"
+                                :class="!selectedLang ? 'bg-indigo-600/10 text-indigo-500 font-bold' : 'text-gray-500 hover:text-indigo-500'"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs transition">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 opacity-50" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 12h16M4 18h7"></path>
+                                    </svg>
+                                    {{ t('allSpark') }}
                                 </span>
-                                <span class="text-xs opacity-40">{{ snippets.length }}</span>
+                                <span class="text-[9px] opacity-40">{{ snippets.length }}</span>
                             </button>
-                            <button v-for="count, lang in langStats" :key="lang" @click="selectedLang = lang" :class="selectedLang === lang ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition uppercase group">
+                            <button v-for="count, lang in langStats" :key="lang" @click="selectedLang = lang"
+                                :class="selectedLang === lang ? 'bg-indigo-600/10 text-indigo-500 font-bold' : 'text-gray-500 hover:text-indigo-500'"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs transition uppercase">
                                 <span>{{ lang }}</span>
-                                <span class="text-xs opacity-40 group-hover:opacity-100">{{ count }}</span>
+                                <span class="text-[9px] opacity-40">{{ count }}</span>
                             </button>
                         </nav>
                     </div>
 
-                    <div class="pt-8 border-t border-slate-50">
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">备份与恢复</h3>
-                        <button @click="generateMagicBookmark" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-black text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition shadow-sm mb-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                            复制保命书签链接
-                        </button>
-                        <p class="text-[10px] text-slate-400 px-2 leading-relaxed">提示：收藏该链接。即使清空了浏览器，点一下书签即可通过主密码瞬时恢复 Token 配置。</p>
+                    <!-- 关键词云 -->
+                    <div v-if="allTags.length > 0">
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 px-3">{{
+                            t('keywords') }}</h3>
+                        <div class="flex flex-wrap gap-2 px-2">
+                            <button v-for="tag in allTags" :key="tag" @click="searchQuery = tag"
+                                class="text-[10px] px-2 py-1 rounded-md border transition-all active:scale-95"
+                                :class="searchQuery.toLowerCase() === tag.toLowerCase() ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 dark:border-white/10 text-gray-500 hover:border-indigo-500 hover:text-indigo-500'">
+                                #{{ tag }}
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="p-8 border-t border-slate-50">
-                    <button @click="logout" class="w-full py-3 text-[10px] text-red-400 font-black hover:text-red-600 hover:bg-red-50 rounded-2xl transition tracking-widest uppercase text-center">登出并清除</button>
                 </div>
             </aside>
 
-            <!-- 主内容展示 -->
-            <main class="flex-1 overflow-y-auto p-8 lg:p-12 custom-scrollbar relative">
-                
-                <!-- 加载中 -->
-                <div v-if="loading" class="absolute inset-0 bg-white/60 backdrop-blur-md z-30 flex flex-col items-center justify-center">
-                    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p class="mt-4 text-slate-500 font-extrabold tracking-tight">与 GitHub 中心同步中...</p>
-                </div>
+            <!-- 主视图区 -->
+            <main class="flex-1 overflow-y-auto custom-scrollbar relative">
+                <transition name="view-fade" mode="out-in">
 
-                <!-- 空状态 -->
-                <div v-if="!isReady" class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
-                    <div class="w-24 h-24 bg-indigo-50 text-indigo-500 rounded-[32px] flex items-center justify-center mb-8 shadow-inner shadow-indigo-100/50">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </div>
-                    <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">开启 Spark 旅程</h2>
-                    <p class="text-slate-500 text-sm mb-10 leading-relaxed font-medium">配置您的 GitHub 仓库以建立私人代码库。数据完全私有，永不丢失。</p>
-                    <button @click="showSettings = true" class="px-12 py-4 bg-slate-900 text-white rounded-3xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all">立即配置</button>
-                </div>
-
-                <!-- 灵感网格 -->
-                <div v-else class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-8 pb-20">
-                    <div v-for="s in filteredSnippets" :key="s.id" class="group bg-white rounded-[40px] flex flex-col h-[380px] overflow-hidden spark-card">
-                        <div class="p-8 flex flex-col h-full">
-                            <div class="flex justify-between items-start mb-5">
-                                <div class="flex flex-col gap-1.5">
-                                    <span :class="getLangTag(s.lang)" class="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest w-fit shadow-sm">{{ s.lang }}</span>
-                                    <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors" :title="s.title">{{ s.title }}</h3>
-                                </div>
-                                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button @click="openModal('edit', s)" class="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-                                    <button @click="deleteSnippet(s.id)" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                                </div>
+                    <!-- 列表视图 -->
+                    <div v-if="currentView === 'list'" key="list-view" class="p-6 md:p-8">
+                        <div v-if="loading" class="h-64 flex flex-col items-center justify-center opacity-30">
+                            <div
+                                class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin">
                             </div>
-                            
-                            <!-- 代码/文本预览区 -->
-                            <div class="relative flex-grow bg-slate-900 rounded-[32px] overflow-hidden group/code shadow-inner border border-slate-800/50">
-                                <pre class="code-font text-xs p-6 text-slate-300 h-full overflow-hidden leading-relaxed cursor-pointer" @click="copy(s.code)">{{ s.code }}</pre>
-                                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 group-hover/code:opacity-100 transition-all flex items-center justify-center">
-                                    <button @click.stop="copy(s.code)" class="bg-white text-slate-900 px-10 py-3 rounded-2xl font-black shadow-2xl hover:scale-105 active:scale-95 transition-all tracking-tight uppercase text-xs">点击复制 Spark</button>
-                                </div>
-                            </div>
+                        </div>
 
-                            <!-- 标签 -->
-                            <div class="mt-6 flex flex-wrap gap-2 min-h-[30px]">
-                                <span v-for="tag in s.tags" :key="tag" class="text-[10px] font-black text-slate-400 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 uppercase tracking-tighter hover:text-indigo-600 hover:bg-indigo-50 transition-colors">#{{ tag }}</span>
+                        <div v-else-if="!isConnected" class="max-w-md mx-auto py-32 text-center">
+                            <h2 class="text-xl font-bold mb-4 uppercase tracking-tighter">{{ t('connectRepo') }}</h2>
+                            <p class="text-sm text-gray-500 mb-8 opacity-70">{{ t('connectRepoHint') }}</p>
+                            <button @click="currentView = 'settings'"
+                                class="px-8 py-2.5 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-700 transition btn-press uppercase shadow-lg shadow-indigo-500/20">{{
+                                t('configureNow') }}</button>
+                        </div>
+
+                        <!-- 代码编辑器网格 -->
+                        <div v-else class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8">
+                            <div v-for="s in filteredSnippets" :key="s.id"
+                                class="editor-window h-[400px] border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e] shadow-sm">
+                                <!-- macOS 标题栏 -->
+                                <div
+                                    class="px-4 py-3 flex items-center border-b border-gray-100 dark:border-white/5 shrink-0 bg-gray-50/50 dark:bg-[#2c2c2e]/50">
+                                    <div class="flex gap-1.5 shrink-0">
+                                        <div class="w-3 h-3 rounded-full bg-[#ff5f56] shadow-sm"></div>
+                                        <div class="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-sm"></div>
+                                        <div class="w-3 h-3 rounded-full bg-[#27c93f] shadow-sm"></div>
+                                    </div>
+                                    <div
+                                        class="ml-4 text-[11px] font-bold flex-1 truncate uppercase tracking-widest opacity-40">
+                                        {{ s.title }}</div>
+                                    <span :class="getLangTagStyle(s.lang)"
+                                        class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase shadow-sm shrink-0">{{
+                                        s.lang }}</span>
+                                </div>
+
+                                <!-- 代码区 -->
+                                <div class="relative flex-grow overflow-hidden group/code bg-white dark:bg-[#000000]">
+                                    <pre class="code-font text-[13px] p-5 h-full overflow-hidden leading-relaxed cursor-pointer transition-colors"
+                                        @click="copy(s.code)"
+                                        :class="themeMode === 'dark' ? 'text-gray-300' : 'text-slate-700'">{{ s.code }}</pre>
+                                    <div
+                                        class="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover/code:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
+                                        <button @click.stop="copy(s.code)"
+                                            class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg font-black text-[10px] shadow-2xl active:scale-95 transition-all uppercase tracking-widest">{{
+                                            t('copyInsight') }}</button>
+                                    </div>
+                                </div>
+
+                                <!-- 底部标签栏 -->
+                                <div
+                                    class="px-4 py-2.5 border-t border-gray-100 dark:border-white/5 flex justify-between items-center shrink-0 bg-gray-50/50 dark:bg-[#141417]">
+                                    <div class="flex flex-wrap gap-2 overflow-hidden h-5">
+                                        <button v-for="tag in s.tags" :key="tag" @click="searchQuery = tag"
+                                            class="text-[10px] font-bold text-gray-400 hover:text-indigo-500 transition-colors uppercase italic">#{{
+                                            tag }}</button>
+                                    </div>
+                                    <div
+                                        class="flex gap-3 ml-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                        <button @click="openModal('edit', s)"
+                                            class="text-gray-400 hover:text-indigo-500 transition scale-90"><svg
+                                                class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                                </path>
+                                            </svg></button>
+                                        <button @click="deleteSnippet(s.id)"
+                                            class="text-gray-400 hover:text-red-500 transition scale-90"><svg
+                                                class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- 设置视图 -->
+                    <div v-else key="settings-view" class="p-8 md:p-16 max-w-4xl mx-auto space-y-16">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-3xl font-black tracking-tight uppercase italic">{{ t('settingsTitle') }}
+                                </h2>
+                                <p
+                                    class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2 opacity-60">
+                                    {{ t('settingsSubtitle') }}</p>
+                            </div>
+                            <button @click="currentView = 'list'"
+                                class="p-2.5 rounded-full bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 transition btn-press"><svg
+                                    class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg></button>
+                        </div>
+
+                        <div class="space-y-10">
+                            <!-- 配置 -->
+                            <div
+                                class="rounded-xl border p-8 space-y-8 shadow-2xl transition-colors border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e]">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-3">
+                                        <label
+                                            class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 block">{{
+                                            t('githubToken') }}</label>
+                                        <input type="password" v-model="config.token" placeholder="ghp_xxxxxx"
+                                            class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+                                    </div>
+                                    <div class="space-y-3">
+                                        <label
+                                            class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 block">{{
+                                            t('repoPath') }}</label>
+                                        <input type="text" v-model="config.repo" placeholder="username/repo"
+                                            class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <label
+                                        class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 block">{{
+                                        t('masterPassword') }}</label>
+                                    <input type="password" v-model="masterPassword"
+                                        :placeholder="t('masterPasswordPlaceholder')"
+                                        class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+                                </div>
+                                <button @click="saveConfig"
+                                    class="w-full py-4 bg-indigo-600 text-white font-black rounded-lg hover:bg-indigo-700 transition btn-press tracking-widest text-xs uppercase shadow-lg shadow-indigo-500/20">{{
+                                    t('saveBtn') }}</button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div
+                                    class="rounded-xl p-8 flex flex-col justify-between h-44 border border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e] shadow-xl">
+                                    <div>
+                                        <h4 class="font-bold text-base flex items-center gap-2">
+                                            <div
+                                                class="w-2 h-2 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/40">
+                                            </div>
+                                            {{ t('magicLink') }}
+                                        </h4>
+                                        <p
+                                            class="text-[11px] text-gray-500 leading-relaxed mt-2 uppercase tracking-tight">
+                                            {{ t('magicLinkDesc') }}</p>
+                                    </div>
+                                    <button @click="generateMagicBookmark" :disabled="!isReady"
+                                        class="text-[10px] font-black text-indigo-500 hover:underline text-left uppercase tracking-widest disabled:opacity-30">{{
+                                        t('generateBookmark') }} →</button>
+                                </div>
+                                <div
+                                    class="rounded-xl p-8 flex flex-col justify-between h-44 border border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1c1e] shadow-xl">
+                                    <div>
+                                        <h4 class="font-bold text-base flex items-center gap-2">
+                                            <div class="w-2 h-2 rounded-full bg-gray-500"></div>
+                                            {{ t('exportDB') }}
+                                        </h4>
+                                        <p
+                                            class="text-[11px] text-gray-500 leading-relaxed mt-2 uppercase tracking-tight">
+                                            {{ t('exportDBDesc') }}</p>
+                                    </div>
+                                    <button @click="exportJSON" :disabled="!isReady"
+                                        class="text-[10px] font-black text-gray-500 hover:underline text-left uppercase tracking-widest disabled:opacity-30">{{
+                                        t('downloadJSON') }} →</button>
+                                </div>
+                            </div>
+
+                            <button @click="logout"
+                                class="w-full py-4 text-[10px] font-black text-red-500 border border-red-200 dark:border-red-900/30 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/5 transition uppercase tracking-[0.2em]">{{
+                                t('logoutBtn') }}</button>
+                        </div>
+                    </div>
+                </transition>
             </main>
         </div>
 
-        <!-- 设置面板 -->
-        <div v-if="showSettings" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md">
-            <div class="bg-white rounded-[50px] shadow-2xl w-full max-w-md p-12 animate-in zoom-in duration-300">
-                <div class="flex justify-between items-center mb-10">
-                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">安全与同步</h2>
-                    <button @click="showSettings = false" class="text-gray-300 hover:text-gray-600 transition"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                </div>
-                <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">GitHub Token</label>
-                        <input type="password" v-model="config.token" placeholder="ghp_xxxxxx" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
-                        <a href="https://github.com/settings/tokens/new" target="_blank" class="text-[10px] text-indigo-500 ml-2 hover:underline">申请 Fine-grained Token</a>
+        <!-- 编辑器 Modal -->
+        <transition name="view-fade">
+            <div v-if="modal.show"
+                class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+                <div
+                    class="rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1e] transition-colors">
+                    <div
+                        class="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-black/20 shrink-0">
+                        <h2 class="text-xl font-black italic tracking-tight uppercase">{{ modal.mode === 'add' ?
+                            t('catchSpark') : t('refineSpark') }}</h2>
+                        <button @click="modal.show = false" class="text-gray-400 hover:text-indigo-500 transition"><svg
+                                class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg></button>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">仓库名 (User/Repo)</label>
-                        <input type="text" v-model="config.repo" placeholder="yourname/repo" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                    <div class="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-grow">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{{
+                                    t('fieldTitle') }}</label>
+                                <input type="text" v-model="form.title"
+                                    class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-bold bg-gray-100 dark:bg-black text-gray-900 dark:text-white"
+                                    :placeholder="t('titlePlaceholder')">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{{
+                                    t('fieldType') }}</label>
+                                <select v-model="form.lang"
+                                    class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-bold uppercase appearance-none cursor-pointer bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+                                    <option value="JS">JavaScript</option>
+                                    <option value="R">R Language</option>
+                                    <option value="PYTHON">Python</option>
+                                    <option value="YAML">YAML</option>
+                                    <option value="SQL">SQL</option>
+                                    <option value="MD">Markdown</option>
+                                    <option value="TEXT">Plain Text</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{{
+                                t('fieldBody') }}</label>
+                            <textarea v-model="form.code" rows="10"
+                                class="code-font w-full border-none p-6 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm leading-relaxed font-medium bg-gray-100 dark:bg-black text-gray-900 dark:text-white"
+                                :placeholder="t('bodyPlaceholder')"></textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{{
+                                t('fieldTags') }}</label>
+                            <input type="text" v-model="form.tagsInput" placeholder="web helper config"
+                                class="w-full border-none p-4 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 text-sm font-semibold bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 block">主密码 (用于加密存储)</label>
-                        <input type="password" v-model="masterPassword" placeholder="设置一个用于解锁的密码" class="w-full border-none bg-gray-100 p-5 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
-                    </div>
-                    <div class="pt-8">
-                        <button @click="saveConfig" class="w-full py-5 bg-indigo-600 text-white font-black rounded-[28px] hover:bg-indigo-700 shadow-2xl shadow-indigo-100 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">连接并同步数据</button>
+                    <div
+                        class="px-8 py-6 border-t border-gray-100 dark:border-white/5 flex justify-end gap-6 shrink-0 bg-gray-50/50 dark:bg-black/20">
+                        <button @click="modal.show = false"
+                            class="px-6 py-3 text-gray-400 font-bold hover:text-gray-600 dark:hover:text-gray-200 transition uppercase text-[10px] tracking-widest">{{
+                            t('discard') }}</button>
+                        <button @click="saveSnippet" :disabled="syncing"
+                            class="px-10 py-3 bg-indigo-600 text-white font-black rounded-lg hover:bg-indigo-700 transition btn-press text-xs tracking-widest uppercase">
+                            {{ syncing ? t('pushing') : t('captureAction') }}
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </transition>
 
-        <!-- 捕捉灵感编辑器 -->
-        <div v-if="modal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md">
-            <div class="bg-white rounded-[60px] shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
-                <div class="px-12 py-10 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">{{ modal.mode === 'add' ? '捕捉灵感' : '编辑 Spark' }}</h2>
-                    <button @click="modal.show = false" class="p-2 hover:bg-gray-200 rounded-full transition"><svg class="w-10 h-10 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                </div>
-                <div class="p-12 space-y-8 overflow-y-auto custom-scrollbar">
-                    <div class="grid grid-cols-2 gap-10">
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">标题</label>
-                            <input type="text" v-model="form.title" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-bold" placeholder="起个响亮的名字...">
-                        </div>
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">语言 / 类型</label>
-                            <select v-model="form.lang" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-black uppercase">
-                                <option value="JS">JavaScript</option>
-                                <option value="R">R Language</option>
-                                <option value="PYTHON">Python</option>
-                                <option value="YAML">YAML</option>
-                                <option value="SQL">SQL</option>
-                                <option value="SHELL">Shell / Bash</option>
-                                <option value="MD">Markdown</option>
-                                <option value="TEXT">Plain Text</option>
-                            </select>
-                        </div>
+        <!-- 暗号链接弹窗 -->
+        <transition name="view-fade">
+            <div v-if="bookmarkModal.show"
+                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+                <div
+                    class="rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl w-full max-w-lg p-12 text-center bg-white dark:bg-[#1c1c1e]">
+                    <div
+                        class="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white mx-auto mb-8 shadow-lg">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
                     </div>
-                    <div class="space-y-3">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">内容</label>
-                        <textarea v-model="form.code" rows="12" class="code-font w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-[40px] p-8 outline-none transition-all text-xs leading-relaxed" placeholder="在此粘贴代码、灵感、或纯文本..."></textarea>
+                    <h3 class="text-xl font-black mb-4 uppercase tracking-wider italic">{{ t('bookmarkReady') }}</h3>
+                    <p class="text-xs text-gray-500 mb-8 leading-relaxed font-medium px-4 opacity-80">{{
+                        t('bookmarkHint') }}</p>
+                    <div
+                        class="p-6 rounded-lg border break-all text-[9px] code-font text-indigo-500 max-h-32 overflow-y-auto mb-10 custom-scrollbar select-all bg-gray-50 dark:bg-black/30 border-gray-200 dark:border-white/5">
+                        {{ bookmarkModal.url }}
                     </div>
-                    <div class="space-y-3">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 block">关键词 (空格分隔)</label>
-                        <input type="text" v-model="form.tagsInput" placeholder="例如: helper data-viz api" class="w-full border-none bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 rounded-3xl p-5 outline-none transition-all text-sm font-medium">
-                    </div>
-                </div>
-                <div class="px-12 py-10 border-t border-slate-50 bg-white flex justify-end gap-6">
-                    <button @click="modal.show = false" class="px-12 py-4 text-slate-400 font-black hover:bg-slate-50 rounded-3xl transition uppercase text-xs tracking-widest">取消</button>
-                    <button @click="saveSnippet" :disabled="syncing" class="px-20 py-4 bg-indigo-600 text-white font-black rounded-[32px] hover:bg-indigo-700 shadow-2xl shadow-indigo-100 transition-all flex items-center gap-4 active:scale-95 tracking-widest uppercase text-sm">
-                        <span v-if="syncing" class="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                        {{ syncing ? '正在推送...' : '同步至 GitHub' }}
+                    <button @click="copy(bookmarkModal.url); bookmarkModal.show = false"
+                        class="w-full py-4 font-black rounded-lg transition btn-press tracking-widest text-[10px] uppercase bg-indigo-600 text-white hover:bg-indigo-700">
+                        {{ t('copyDismiss') }}
                     </button>
                 </div>
             </div>
-        </div>
+        </transition>
 
-        <!-- 吐司消息通知 -->
-        <div class="fixed bottom-12 right-12 z-[100] flex flex-col gap-4 pointer-events-none">
-            <transition-group name="toast-slide">
-                <div v-for="t in toasts" :key="t.id" :class="t.type === 'error' ? 'bg-red-600 shadow-red-200' : 'bg-gray-900 shadow-2xl shadow-gray-900/40'" class="px-8 py-5 rounded-[28px] text-white flex items-center gap-5">
-                    <div v-if="t.type !== 'error'" class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
-                    <span class="text-sm font-black tracking-tight">{{ t.msg }}</span>
+        <!-- 吐司通知中心 -->
+        <div class="fixed bottom-10 right-10 z-[250] flex flex-col gap-4 pointer-events-none">
+            <transition-group name="view-fade">
+                <div v-for="t in toasts" :key="t.id"
+                    :class="t.type === 'error' ? 'bg-red-600' : 'bg-indigo-600 shadow-2xl shadow-indigo-500/20'"
+                    class="px-6 py-4 rounded-xl text-white flex items-center gap-4 border border-white/10">
+                    <div v-if="t.type !== 'error'" class="w-2 h-2 rounded-full bg-indigo-300 animate-pulse"></div>
+                    <span class="text-xs font-black tracking-widest uppercase italic leading-none">{{ t.msg }}</span>
                 </div>
             </transition-group>
         </div>
     </div>
 
     <script>
-        const { createApp, ref, computed, reactive, onMounted } = Vue;
+        const { createApp, ref, computed, reactive, onMounted, watch } = Vue;
+
+        // 语言字典
+        const I18N_DATA = {
+            zh: {
+                searchPlaceholder: "检索灵感火花或关键词...",
+                newSnip: "新增片段",
+                filter: "按类型筛选",
+                allSpark: "全部灵感",
+                keywords: "关键词云",
+                connectRepo: "连接你的仓库",
+                connectRepoHint: "在设置中填写 GitHub 令牌以开启同步。",
+                configureNow: "立即配置",
+                copyInsight: "复制灵感",
+                themeToggle: "切换深浅色主题",
+                settingsTitle: "系统设置",
+                settingsSubtitle: "配置中心与本地加密",
+                githubToken: "GitHub 令牌",
+                repoPath: "仓库路径",
+                masterPassword: "主密码 (AES 密钥)",
+                masterPasswordPlaceholder: "解锁本地加密缓存的钥匙",
+                saveBtn: "同步并保存配置",
+                magicLink: "保命书签",
+                magicLinkDesc: "将配置加密为 URL。收藏它，清空缓存后点一下即可恢复。",
+                generateBookmark: "生成书签链接",
+                exportDB: "导出数据库",
+                exportDBDesc: "将所有灵感导出为物理 JSON 文件。",
+                downloadJSON: "下载备份",
+                logoutBtn: "销毁本地缓存并登出",
+                catchSpark: "捕捉灵感",
+                refineSpark: "提炼片段",
+                fieldTitle: "标题",
+                titlePlaceholder: "给片段起个名字...",
+                fieldType: "类型",
+                fieldBody: "正文内容",
+                bodyPlaceholder: "在此粘贴代码或深度见解...",
+                fieldTags: "标签 (空格分隔)",
+                discard: "放弃",
+                pushing: "推送中...",
+                captureAction: "捕捉此 Spark",
+                bookmarkReady: "书签暗号已就绪",
+                bookmarkHint: "请复制下方链接，在书签栏右键选择“添加网页”，并粘贴至“网址”栏。",
+                copyDismiss: "复制并关闭",
+                syncSuccess: "核心同步成功",
+                authFailed: "同步失败：Token 无效",
+                captured: "灵感已捕获至云端",
+                restored: "已通过书签恢复连接",
+                decryptionFailed: "解密失败：主密码错误",
+                fieldsIncomplete: "内容缺失",
+                copied: "灵感已复制"
+            },
+            en: {
+                searchPlaceholder: "Search insights or keywords...",
+                newSnip: "NEW SNIP",
+                filter: "Filter",
+                allSpark: "All Spark",
+                keywords: "Tags Cloud",
+                connectRepo: "Connect Your Repo",
+                connectRepoHint: "Set your GitHub token in the settings to start syncing.",
+                configureNow: "CONFIGURE NOW",
+                copyInsight: "COPY INSIGHT",
+                themeToggle: "Toggle Theme",
+                settingsTitle: "System Settings",
+                settingsSubtitle: "Config & Local Encryption",
+                githubToken: "GitHub Token",
+                repoPath: "Repository Path",
+                masterPassword: "Master Password",
+                masterPasswordPlaceholder: "Unlock local cache",
+                saveBtn: "Sync & Save Configuration",
+                magicLink: "Magic Link",
+                magicLinkDesc: "Encrypt your config into a URL bookmark for one-click recovery.",
+                generateBookmark: "Generate Bookmark",
+                exportDB: "Export DB",
+                exportDBDesc: "Download collection as a portable JSON file.",
+                downloadJSON: "Download JSON",
+                logoutBtn: "Purge local cache and Logout",
+                catchSpark: "Catch a Spark",
+                refineSpark: "Refine Spark",
+                fieldTitle: "Title",
+                titlePlaceholder: "Snippet name...",
+                fieldType: "Type",
+                fieldBody: "Insight Body",
+                bodyPlaceholder: "Paste code or insight here...",
+                fieldTags: "Tags (Space separated)",
+                discard: "Discard",
+                pushing: "PUSHING...",
+                captureAction: "CAPTURE SPARK",
+                bookmarkReady: "Magic Link Ready",
+                bookmarkHint: "Copy the link and save it as a browser bookmark to restore sessions.",
+                copyDismiss: "COPY & DISMISS",
+                syncSuccess: "SYNC SUCCESSFUL",
+                authFailed: "AUTH FAILED: INVALID TOKEN",
+                captured: "CAPTURED TO CLOUD",
+                restored: "RESTORED VIA MAGIC LINK",
+                decryptionFailed: "DECRYPTION FAILED",
+                fieldsIncomplete: "FIELDS INCOMPLETE",
+                copied: "COPIED TO CLIPBOARD"
+            }
+        };
 
         createApp({
             setup() {
+                const currentLang = ref(localStorage.getItem('spark_lang') || 'zh');
+                const themeMode = ref(localStorage.getItem('spark_theme') || 'dark');
+                const currentView = ref('list');
                 const snippets = ref([]);
                 const loading = ref(false);
                 const syncing = ref(false);
-                const showSettings = ref(false);
                 const searchQuery = ref('');
                 const selectedLang = ref('');
                 const toasts = ref([]);
                 const sha = ref('');
                 const masterPassword = ref(localStorage.getItem('spark_master') || '');
+                const bookmarkModal = reactive({ show: false, url: '' });
 
                 const config = reactive({
                     token: '',
@@ -279,13 +620,33 @@
                     path: 'snippets.json'
                 });
 
+                // 翻译函数
+                const t = (key) => I18N_DATA[currentLang.value][key] || key;
+
+                const toggleLang = () => {
+                    currentLang.value = currentLang.value === 'zh' ? 'en' : 'zh';
+                    localStorage.setItem('spark_lang', currentLang.value);
+                };
+
+                const toggleTheme = () => {
+                    themeMode.value = themeMode.value === 'dark' ? 'light' : 'dark';
+                    localStorage.setItem('spark_theme', themeMode.value);
+                };
+
+                const resetView = () => {
+                    currentView.value = 'list';
+                    searchQuery.value = '';
+                    selectedLang.value = '';
+                };
+
                 const decryptStoredToken = () => {
                     const encrypted = localStorage.getItem('spark_token');
                     if (encrypted && masterPassword.value) {
                         try {
                             const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
-                            config.token = bytes.toString(CryptoJS.enc.Utf8);
-                        } catch (e) { console.error('解密失败'); }
+                            const res = bytes.toString(CryptoJS.enc.Utf8);
+                            if (res) config.token = res;
+                        } catch (e) { console.error('Decryption failed'); }
                     }
                 };
 
@@ -293,6 +654,7 @@
                 const form = reactive({ title: '', lang: 'JS', code: '', tagsInput: '' });
 
                 const isReady = computed(() => !!(config.token && config.repo));
+                const isConnected = computed(() => !!(config.token && config.repo));
 
                 const langStats = computed(() => {
                     const stats = {};
@@ -300,36 +662,49 @@
                     return stats;
                 });
 
+                const allTags = computed(() => {
+                    const tags = new Set();
+                    snippets.value.forEach(s => {
+                        if (s.tags) s.tags.forEach(tag => tags.add(tag));
+                    });
+                    return Array.from(tags).sort();
+                });
+
                 const filteredSnippets = computed(() => {
                     return snippets.value.filter(s => {
                         const q = searchQuery.value.toLowerCase();
-                        const matchSearch = s.title.toLowerCase().includes(q) || s.code.toLowerCase().includes(q) || s.tags.some(t => t.toLowerCase().includes(q));
+                        const matchSearch = q.startsWith('#')
+                            ? (s.tags && s.tags.some(t => t.toLowerCase() === q.slice(1)))
+                            : (s.title.toLowerCase().includes(q) || s.code.toLowerCase().includes(q) || (s.tags && s.tags.some(t => t.toLowerCase().includes(q))));
+
                         const matchLang = !selectedLang.value || s.lang === selectedLang.value;
                         return matchSearch && matchLang;
                     }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                 });
 
-                const notify = (msg, type = 'success') => {
+                const notify = (msgKey, type = 'success') => {
                     const id = Date.now();
-                    toasts.value.push({ id, msg, type });
-                    setTimeout(() => toasts.value = toasts.value.filter(t => t.id !== id), 3000);
+                    toasts.value.push({ id, msg: t(msgKey), type });
+                    setTimeout(() => toasts.value = toasts.value.filter(t => t.id !== id), 3500);
                 };
 
+                const toggleSettings = () => { currentView.value = currentView.value === 'list' ? 'settings' : 'list'; };
+
                 const fetchData = async () => {
-                    if (!isReady.value) return;
+                    if (!isConnected.value) return;
                     loading.value = true;
                     try {
                         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
                             headers: { 'Authorization': `token ${config.token}`, 'Accept': 'application/vnd.github.v3+json' }
                         });
-                        if (!res.ok) throw new Error('同步失败，请检查配置');
+                        if (!res.ok) throw new Error('Sync Failed');
                         const data = await res.json();
                         sha.value = data.sha;
-                        const decoded = new TextDecoder().decode(Uint8Array.from(atob(data.content.replace(/\s/g, '')), c => c.charCodeAt(0)));
+                        const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
                         snippets.value = JSON.parse(decoded);
-                        showSettings.value = false;
-                        notify('GitHub 同步成功');
-                    } catch (e) { notify(e.message, 'error'); showSettings.value = true; }
+                        currentView.value = 'list';
+                        notify('syncSuccess');
+                    } catch (e) { notify('authFailed', 'error'); currentView.value = 'settings'; }
                     finally { loading.value = false; }
                 };
 
@@ -341,20 +716,20 @@
                         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
                             method: 'PUT',
                             headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: `Sync Spark: ${new Date().toLocaleString()}`, content: base64, sha: sha.value })
+                            body: JSON.stringify({ message: `Spark Update: ${new Date().toLocaleString()}`, content: base64, sha: sha.value })
                         });
-                        if (!res.ok) throw new Error('推送失败');
+                        if (!res.ok) throw new Error('Push Failed');
                         const result = await res.json();
                         sha.value = result.content.sha;
                         snippets.value = newData;
-                        notify('已同步至 GitHub');
+                        notify('captured');
                         return true;
-                    } catch (e) { notify(e.message, 'error'); return false; }
+                    } catch (e) { notify('authFailed', 'error'); return false; }
                     finally { syncing.value = false; }
                 };
 
                 const saveConfig = () => {
-                    if (!masterPassword.value) return notify('设置主密码以加密存储 Token', 'error');
+                    if (!masterPassword.value) return notify('decryptionFailed', 'error');
                     const encrypted = CryptoJS.AES.encrypt(config.token, masterPassword.value).toString();
                     localStorage.setItem('spark_token', encrypted);
                     localStorage.setItem('spark_repo', config.repo);
@@ -362,20 +737,15 @@
                     fetchData();
                 };
 
-                const logout = () => { if (confirm('确认清除所有本地配置吗？')) { localStorage.clear(); window.location.reload(); } };
+                const logout = () => { if (confirm('彻底登出？将销毁本地所有加密缓存。')) { localStorage.clear(); window.location.reload(); } };
 
                 const generateMagicBookmark = () => {
+                    if (!isReady.value) return notify('fieldsIncomplete', 'error');
                     const raw = `${config.token}|${config.repo}`;
                     const encrypted = masterPassword.value ? CryptoJS.AES.encrypt(raw, masterPassword.value).toString() : btoa(raw);
-                    const url = `${window.location.origin}${window.location.pathname}#setup=${encodeURIComponent(encrypted)}`;
-                    
-                    const el = document.createElement('textarea');
-                    el.value = url;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(el);
-                    notify('保命书签链接已复制！存入书签栏即可。');
+                    const baseUrl = window.location.href.split('#')[0];
+                    bookmarkModal.url = `${baseUrl}#setup=${encodeURIComponent(encrypted)}`;
+                    bookmarkModal.show = true;
                 };
 
                 const checkUrlHash = () => {
@@ -388,23 +758,30 @@
                                 const bytes = CryptoJS.AES.decrypt(encrypted, masterPassword.value);
                                 raw = bytes.toString(CryptoJS.enc.Utf8);
                             } else { raw = atob(encrypted); }
-                            
                             if (raw && raw.includes('|')) {
-                                const [t, r] = raw.split('|');
-                                config.token = t; config.repo = r;
+                                const [t_val, r_val] = raw.split('|');
+                                config.token = t_val; config.repo = r_val;
                                 saveConfig();
-                                notify('✨ 暗号对接成功，配置已恢复');
-                                history.replaceState(null, document.title, window.location.pathname);
+                                notify('restored');
+                                setTimeout(() => { history.replaceState(null, document.title, window.location.pathname); }, 2000);
                             }
-                        } catch (e) { notify('书签解密失败', 'error'); }
+                        } catch (e) { notify('decryptionFailed', 'error'); }
                     }
+                };
+
+                const exportJSON = () => {
+                    const blob = new Blob([JSON.stringify(snippets.value, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `spark_backup.json`;
+                    a.click();
                 };
 
                 const openModal = (mode, s = null) => {
                     modal.mode = mode;
                     if (mode === 'edit' && s) {
                         modal.currentId = s.id; form.title = s.title; form.lang = s.lang; form.code = s.code;
-                        form.tagsInput = s.tags.join(' ');
+                        form.tagsInput = s.tags ? s.tags.join(' ') : '';
                     } else {
                         modal.currentId = null; form.title = ''; form.lang = 'JS'; form.code = ''; form.tagsInput = '';
                     }
@@ -412,7 +789,7 @@
                 };
 
                 const saveSnippet = async () => {
-                    if (!form.title || !form.code) return notify('标题内容不能为空', 'error');
+                    if (!form.title || !form.code) return notify('fieldsIncomplete', 'error');
                     const tagList = form.tagsInput.split(/[,\s]+/).filter(t => t.trim());
                     let newList;
                     if (modal.mode === 'add') {
@@ -423,37 +800,39 @@
                     if (await updateRemote(newList)) modal.show = false;
                 };
 
-                const deleteSnippet = (id) => { if (confirm('永久删除该灵感？')) updateRemote(snippets.value.filter(s => s.id !== id)); };
+                const deleteSnippet = (id) => { if (confirm('从 GitHub 永久移除？')) updateRemote(snippets.value.filter(s => s.id !== id)); };
 
                 const copy = (txt) => {
                     const el = document.createElement('textarea');
-                    el.value = txt;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
+                    el.value = txt; document.body.appendChild(el);
+                    el.select(); document.execCommand('copy');
                     document.body.removeChild(el);
-                    notify('Spark 已复制到剪贴板');
+                    notify('copied');
                 };
 
-                const getLangTag = (l) => {
-                    const map = { 
-                        JS: 'bg-yellow-400 text-yellow-900', R: 'bg-blue-600 text-white', PYTHON: 'bg-emerald-500 text-white', 
-                        YAML: 'bg-indigo-600 text-white', SQL: 'bg-pink-500 text-white', MD: 'bg-slate-700 text-white', 
-                        TEXT: 'bg-slate-300 text-slate-700' 
+                const getLangTagStyle = (l) => {
+                    const map = {
+                        JS: 'text-[#f7df1e] border border-[#f7df1e]/20',
+                        R: 'text-[#276bba] border border-[#276bba]/20',
+                        PYTHON: 'text-[#3776ab] border border-[#3776ab]/20',
+                        YAML: 'text-[#cb171e] border border-[#cb171e]/20',
+                        SQL: 'text-[#336791] border border-[#336791]/20',
+                        MD: 'text-gray-400 border border-gray-400/20',
+                        TEXT: 'text-gray-400 border border-gray-400/20'
                     };
-                    return map[l.toUpperCase()] || 'bg-gray-200 text-gray-700';
+                    return map[l.toUpperCase()] || 'text-gray-400 border border-white/5';
                 };
 
-                onMounted(() => { 
-                    decryptStoredToken(); 
-                    checkUrlHash(); 
-                    if (isReady.value) fetchData(); 
-                    else if (localStorage.getItem('spark_token')) showSettings.value = true;
+                onMounted(() => {
+                    decryptStoredToken(); checkUrlHash();
+                    if (isConnected.value) fetchData();
+                    else if (localStorage.getItem('spark_token')) currentView.value = 'settings';
                 });
 
-                return { config, snippets, loading, syncing, showSettings, searchQuery, selectedLang, langStats, filteredSnippets, toasts, modal, form, masterPassword, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTag, isReady };
+                return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, masterPassword, bookmarkModal, saveConfig, logout, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, isReady, isConnected, exportJSON, toggleSettings };
             }
         }).mount('#app');
     </script>
 </body>
+
 </html>
