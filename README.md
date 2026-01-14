@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="logo.svg" alt="Spark Logo" width="100" height="100">
+
 # ✨ Spark
 
 **灵光一瞬 · 优雅的代码片段管理工具**
