@@ -51,6 +51,34 @@ const LANGUAGE_CONFIG = [
         tagStyle: 'text-gray-400 border border-gray-400/20',
         colorDot: 'bg-gray-400',
         hljsAlias: 'plaintext'
+    },
+    {
+        value: 'BASH',
+        label: 'Bash',
+        tagStyle: 'text-[#89e051] border border-[#89e051]/20',
+        colorDot: 'bg-[#89e051]',
+        hljsAlias: 'bash'
+    },
+    {
+        value: 'HTML',
+        label: 'HTML',
+        tagStyle: 'text-[#e34c26] border border-[#e34c26]/20',
+        colorDot: 'bg-[#e34c26]',
+        hljsAlias: 'xml'
+    },
+    {
+        value: 'CSS',
+        label: 'CSS',
+        tagStyle: 'text-[#264de4] border border-[#264de4]/20',
+        colorDot: 'bg-[#264de4]',
+        hljsAlias: 'css'
+    },
+    {
+        value: 'TS',
+        label: 'TypeScript',
+        tagStyle: 'text-[#3178c6] border border-[#3178c6]/20',
+        colorDot: 'bg-[#3178c6]',
+        hljsAlias: 'typescript'
     }
 ];
 
@@ -64,6 +92,8 @@ const I18N_DATA = {
         keywords: "关键词云",
         connectRepo: "连接你的仓库",
         connectRepoHint: "在设置中填写 GitHub 令牌以开启同步。",
+        configHint: "请先配置 GitHub Token 和仓库地址",
+        goToConfig: "去配置",
         configureNow: "立即配置",
         copyInsight: "复制灵感",
         themeToggle: "切换深浅色主题",
@@ -73,7 +103,7 @@ const I18N_DATA = {
         repoPath: "仓库路径",
         masterPassword: "主密码 (可选，用于加密Token)",
         masterPasswordPlaceholder: "可选：填写后Token将被加密存储",
-        saveBtn: "同步并保存配置",
+        saveBtn: "保存配置",
         magicLink: "保存书签",
         magicLinkDesc: "将 Token 和仓库信息保存为书签链接。下次使用时，直接点击书签即可自动填写配置，无需手动输入。",
         generateBookmark: "生成书签链接",
@@ -101,7 +131,22 @@ const I18N_DATA = {
         restored: "已通过书签恢复配置并保存到本地",
         decryptionFailed: "解密失败：主密码错误",
         fieldsIncomplete: "内容缺失",
-        copied: "灵感已复制"
+        copied: "灵感已复制",
+        confirmDelete: "确认删除",
+        confirmDeleteDesc: "此操作将从 GitHub 永久移除该片段，无法恢复。",
+        confirm: "确认删除",
+        cancel: "取消",
+        configSaved: "配置保存成功",
+        configIncomplete: "请填写完整的 Token 和仓库地址",
+        invalidRepoFormat: "仓库地址格式不正确，应为：用户名/仓库名",
+        invalidToken: "Token 无效或已过期",
+        repoNotFound: "仓库不存在或无权访问",
+        repoCheckFailed: "仓库验证失败",
+        noReadPermission: "Token 没有读取权限",
+        noWritePermission: "Token 没有写入权限，需要 Contents: Read and write 权限",
+        readTestFailed: "读取权限验证失败",
+        writeTestFailed: "写入权限验证失败",
+        validationError: "配置验证失败，请检查网络连接"
     },
     en: {
         searchPlaceholder: "Search insights or keywords...",
@@ -111,6 +156,8 @@ const I18N_DATA = {
         keywords: "Tags Cloud",
         connectRepo: "Connect Your Repo",
         connectRepoHint: "Set your GitHub token in the settings to start syncing.",
+        configHint: "Please configure GitHub Token and Repository first",
+        goToConfig: "Go to Config",
         configureNow: "CONFIGURE NOW",
         copyInsight: "COPY INSIGHT",
         themeToggle: "Toggle Theme",
@@ -120,7 +167,7 @@ const I18N_DATA = {
         repoPath: "Repository Path",
         masterPassword: "Master Password (Optional)",
         masterPasswordPlaceholder: "Optional: Encrypt token when provided",
-        saveBtn: "Sync & Save Configuration",
+        saveBtn: "Save Configuration",
         magicLink: "Save Bookmark",
         magicLinkDesc: "Save your token and repository info as a bookmark link. Click the bookmark next time to auto-fill the configuration without manual input.",
         generateBookmark: "Generate Bookmark",
@@ -148,7 +195,33 @@ const I18N_DATA = {
         restored: "CONFIG RESTORED FROM BOOKMARK AND SAVED",
         decryptionFailed: "DECRYPTION FAILED",
         fieldsIncomplete: "FIELDS INCOMPLETE",
-        copied: "COPIED TO CLIPBOARD"
+        copied: "COPIED TO CLIPBOARD",
+        configSaved: "Configuration Saved",
+        configIncomplete: "Please fill in Token and Repository",
+        invalidRepoFormat: "Invalid repository format, should be: username/repo",
+        invalidToken: "Invalid or expired token",
+        repoNotFound: "Repository not found or no access",
+        repoCheckFailed: "Repository validation failed",
+        noReadPermission: "Token has no read permission",
+        noWritePermission: "Token has no write permission, requires Contents: Read and write",
+        readTestFailed: "Read permission test failed",
+        writeTestFailed: "Write permission test failed",
+        validationError: "Configuration validation failed, check network connection",
+        confirmDelete: "Confirm Delete",
+        confirmDeleteDesc: "This will permanently remove this snippet from GitHub. This action cannot be undone.",
+        confirm: "Confirm Delete",
+        cancel: "Cancel",
+        configSaved: "Configuration Saved",
+        configIncomplete: "Please fill in Token and Repository",
+        invalidRepoFormat: "Invalid repository format, should be: username/repo",
+        invalidToken: "Invalid or expired token",
+        repoNotFound: "Repository not found or no access",
+        repoCheckFailed: "Repository validation failed",
+        noReadPermission: "Token has no read permission",
+        noWritePermission: "Token has no write permission, requires Contents: Read and write",
+        readTestFailed: "Read permission test failed",
+        writeTestFailed: "Write permission test failed",
+        validationError: "Configuration validation failed, check network connection"
     }
 };
 
@@ -177,6 +250,7 @@ createApp({
         const toasts = ref([]);
         const sha = ref('');
         const bookmarkModal = reactive({ show: false, url: '' });
+        const confirmModal = reactive({ show: false, id: null });
 
         const config = reactive({
             token: '',
@@ -353,10 +427,135 @@ createApp({
             finally { syncing.value = false; }
         };
 
-        const saveConfig = () => {
+        const validateConfig = async () => {
+            if (!config.token || !config.repo) {
+                notify('configIncomplete', 'error');
+                return false;
+            }
+
+            // 验证仓库格式
+            if (!/^[\w\-\.]+\/[\w\-\.]+$/.test(config.repo)) {
+                notify('invalidRepoFormat', 'error');
+                return false;
+            }
+
+            try {
+                // 1. 验证仓库是否存在以及 token 是否有效
+                const repoRes = await fetch(`https://api.github.com/repos/${config.repo}`, {
+                    headers: { 
+                        'Authorization': `token ${config.token}`, 
+                        'Accept': 'application/vnd.github.v3+json' 
+                    }
+                });
+
+                if (repoRes.status === 401) {
+                    notify('invalidToken', 'error');
+                    return false;
+                }
+
+                if (repoRes.status === 404) {
+                    notify('repoNotFound', 'error');
+                    return false;
+                }
+
+                if (!repoRes.ok) {
+                    notify('repoCheckFailed', 'error');
+                    return false;
+                }
+
+                const repoData = await repoRes.json();
+                
+                // 2. 检查权限（如果有 permissions 字段）
+                if (repoData.permissions) {
+                    if (!repoData.permissions.push) {
+                        notify('noWritePermission', 'error');
+                        return false;
+                    }
+                }
+
+                // 3. 尝试读取文件（验证 read 权限）
+                const contentRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
+                    headers: { 
+                        'Authorization': `token ${config.token}`, 
+                        'Accept': 'application/vnd.github.v3+json' 
+                    }
+                });
+
+                // 404 表示文件不存在，这是正常的，可以继续
+                if (contentRes.status === 404) {
+                    // 文件不存在，尝试创建一个测试文件来验证写入权限
+                    const testContent = btoa(unescape(encodeURIComponent('[]')));
+                    const testRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Authorization': `token ${config.token}`, 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({ 
+                            message: 'Spark: Test write permission', 
+                            content: testContent 
+                        })
+                    });
+
+                    if (!testRes.ok) {
+                        if (testRes.status === 403) {
+                            notify('noWritePermission', 'error');
+                        } else {
+                            notify('writeTestFailed', 'error');
+                        }
+                        return false;
+                    }
+
+                    // 测试成功，删除测试文件
+                    const testData = await testRes.json();
+                    await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'Authorization': `token ${config.token}`, 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({ 
+                            message: 'Spark: Remove test file', 
+                            sha: testData.content.sha 
+                        })
+                    });
+                } else if (!contentRes.ok) {
+                    if (contentRes.status === 403) {
+                        notify('noReadPermission', 'error');
+                    } else {
+                        notify('readTestFailed', 'error');
+                    }
+                    return false;
+                } else {
+                    // 文件存在，验证读取成功
+                    const contentData = await contentRes.json();
+                    sha.value = contentData.sha;
+                }
+
+                return true;
+            } catch (e) {
+                console.error('Validation error:', e);
+                notify('validationError', 'error');
+                return false;
+            }
+        };
+
+        const saveConfig = async () => {
+            // 先验证配置
+            const isValid = await validateConfig();
+            if (!isValid) {
+                return;
+            }
+
+            // 验证通过，保存到 localStorage
             localStorage.setItem('spark_token', config.token);
             localStorage.setItem('spark_repo', config.repo);
-            fetchData();
+            notify('configSaved');
+            
+            // 如果文件已存在，自动加载数据
+            if (sha.value) {
+                fetchData();
+            }
         };
 
         const generateMagicBookmark = () => {
@@ -417,7 +616,23 @@ createApp({
             if (await updateRemote(newList)) modal.show = false;
         };
 
-        const deleteSnippet = (id) => { if (confirm('从 GitHub 永久移除？')) updateRemote(snippets.value.filter(s => s.id !== id)); };
+        const deleteSnippet = (id) => {
+            confirmModal.id = id;
+            confirmModal.show = true;
+        };
+
+        const confirmDelete = async () => {
+            if (confirmModal.id) {
+                await updateRemote(snippets.value.filter(s => s.id !== confirmModal.id));
+                confirmModal.show = false;
+                confirmModal.id = null;
+            }
+        };
+
+        const cancelDelete = () => {
+            confirmModal.show = false;
+            confirmModal.id = null;
+        };
 
         const copy = (txt) => {
             const el = document.createElement('textarea');
@@ -466,11 +681,14 @@ createApp({
             updateHighlightTheme(themeMode.value);
             decryptStoredToken(); 
             checkUrlHash();
-            if (isConnected.value) fetchData();
-            else if (localStorage.getItem('spark_token')) currentView.value = 'settings';
+            if (isConnected.value) {
+                fetchData();
+            } else {
+                if (localStorage.getItem('spark_token')) currentView.value = 'settings';
+            }
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, confirmModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor };
     }
 }).mount('#app');
 
