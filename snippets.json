@@ -15,7 +15,9 @@
     "title": "Zotero",
     "lang": "SQL",
     "code": "WITH RECURSIVE ancestors(itemID) AS (\n  SELECT i.itemID\n  FROM items i\n  WHERE i.itemTypeID = 3   -- attachment\n  -- 可改成只查一个特定 key\n  UNION ALL\n  SELECT ia.parentItemID\n  FROM itemAttachments ia\n  JOIN ancestors a ON ia.itemID = a.itemID\n  WHERE ia.parentItemID IS NOT NULL\n  UNION ALL\n  SELECT inote.parentItemID\n  FROM itemNotes inote\n  JOIN ancestors a ON inote.itemID = a.itemID\n)\nSELECT i.key AS ParentKey,\n       MAX(CASE WHEN f.fieldName='title' THEN idv.value END) AS title,\n       MAX(CASE WHEN f.fieldName='abstractNote' THEN idv.value END) AS abstract,\n       MAX(CASE WHEN f.fieldName='publicationTitle' THEN idv.value END) AS journal,\n       MAX(CASE WHEN f.fieldName='date' THEN idv.value END) AS date,\n       (SELECT GROUP_CONCAT(c.lastName || ', ' || c.firstName, '; ')\n        FROM itemCreators ic JOIN creators c ON ic.creatorID=c.creatorID\n        WHERE ic.itemID=i.itemID\n        ORDER BY ic.orderIndex) AS authors,\n       (SELECT GROUP_CONCAT(t.name,'; ')\n        FROM itemTags it JOIN tags t ON it.tagID=t.tagID\n        WHERE it.itemID=i.itemID) AS keywords\nFROM ancestors a\nJOIN items i ON i.itemID=a.itemID\nLEFT JOIN itemData id ON id.itemID=i.itemID\nLEFT JOIN fields f ON id.fieldID=f.fieldID\nLEFT JOIN itemDataValues idv ON id.valueID=idv.valueID\nWHERE i.itemTypeID NOT IN (3,40)\nGROUP BY i.key;\n",
-    "tags": [],
+    "tags": [
+      "zotero"
+    ],
     "createdAt": 1769353733808
   }
 ]
