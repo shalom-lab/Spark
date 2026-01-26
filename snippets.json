@@ -59,5 +59,15 @@
       "doi去重"
     ],
     "createdAt": 1769409834831
+  },
+  {
+    "id": "1769414549117",
+    "title": "Zotero",
+    "lang": "JS",
+    "code": "SELECT \n    /* --- 关键标识符 --- */\n    parent.key AS parentKey,           -- 父条目（论文）的 Key：用于元数据关联\n    child.key AS attachmentKey,        -- 附件（PDF）的 Key：用于定位 storage 文件夹\n    \n    /* --- 核心元数据 --- */\n    MAX(CASE WHEN f.fieldName = 'title'            THEN idv.value END) AS title,\n    MAX(CASE WHEN f.fieldName = 'abstractNote'     THEN idv.value END) AS abstract,\n    MAX(CASE WHEN f.fieldName = 'publicationTitle' THEN idv.value END) AS journal,\n    MAX(CASE WHEN f.fieldName = 'DOI'              THEN idv.value END) AS doi,\n    MAX(CASE WHEN f.fieldName = 'url'              THEN idv.value END) AS url, -- 新增的网址信息\n    MAX(CASE WHEN f.fieldName = 'date'             THEN idv.value END) AS publishDate,\n\n    /* --- 标签聚合 --- */\n    (SELECT GROUP_CONCAT(t.name, '; ') \n     FROM tags t \n     JOIN itemTags it ON t.tagID = it.tagID \n     WHERE it.itemID = parent.itemID) AS keywords\n\nFROM items AS child\n-- 附件关系联表\nJOIN itemAttachments AS ia ON child.itemID = ia.itemID \nJOIN items AS parent ON ia.parentItemID = parent.itemID \n-- 元数据值联表\nJOIN itemData AS id ON parent.itemID = id.itemID\nJOIN fields AS f ON id.fieldID = f.fieldID\nJOIN itemDataValues AS idv ON id.valueID = idv.valueID\n\n/* --- 这里的 Key 既可以是附件的，也可以改为 parent.key --- */\nWHERE child.key = '3ZUNEJPW' \n\nGROUP BY parent.itemID, child.key;",
+    "tags": [
+      "附件"
+    ],
+    "createdAt": 1769414549117
   }
 ]
