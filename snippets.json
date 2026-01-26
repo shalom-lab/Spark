@@ -26,7 +26,7 @@
     "lang": "JS",
     "code": "(async function() {\n\n    const SEARCH_NAME = '重复条目 (_dup)';\n\n    // 获取当前个人库的 ID\n\n    const libID = Zotero.Libraries.userLibraryID;\n\n\n\n    // 修复点：传入 libID，解决 SQL 占位符报错\n\n    let allSearches = await Zotero.Searches.getAll(libID);\n\n    \n\n    let foundSearch = allSearches.find(s => s.getName() === SEARCH_NAME);\n\n\n\n    if (foundSearch) {\n\n        console.log(`🔎 找到 Key: ${foundSearch.key}`);\n\n        \n\n        // 执行物理删除\n\n        await foundSearch.eraseTx();\n\n        \n\n        // 刷新 UI\n\n        if (typeof ZoteroPane !== 'undefined') {\n\n            ZoteroPane.collectionsView.refresh();\n\n        }\n\n        \n\n        return `成功删除: ${SEARCH_NAME}`;\n\n    } else {\n\n        return \"未找到该搜索分类\";\n\n    }\n\n})();",
     "tags": [
-      "search"
+      "删除搜索"
     ],
     "createdAt": 1769408828549
   },
