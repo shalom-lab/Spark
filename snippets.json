@@ -69,5 +69,15 @@
       "附件"
     ],
     "createdAt": 1769414549117
+  },
+  {
+    "id": "1769428237364",
+    "title": "gemini",
+    "lang": "JS",
+    "code": "const getAIClient = () => {\n  const key = localStorage.getItem('GEMINI_API_KEY') || process.env.API_KEY || \"\";\n  return new GoogleGenAI({ apiKey: key });\n};",
+    "tags": [
+      "GEMINIKEY"
+    ],
+    "createdAt": 1769428237364
   }
 ]
