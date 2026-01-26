@@ -39,5 +39,15 @@
       "新建搜索"
     ],
     "createdAt": 1769409003917
+  },
+  {
+    "id": "1769409183885",
+    "title": "Zotero",
+    "lang": "JS",
+    "code": "(async function() {\n    const TAG_NAME = '_dup';\n    const libID = Zotero.Libraries.userLibraryID;\n\n    // 1. 查找所有带有该标签的条目\n    var s = new Zotero.Search();\n    s.libraryID = libID;\n    s.addCondition('tag', 'is', TAG_NAME);\n    var ids = await s.search();\n\n    if (!ids.length) {\n        return \"未发现带有 \" + TAG_NAME + \" 标签的条目。\";\n    }\n\n    console.log(`正在从 ${ids.length} 个条目中移除标签...`);\n\n    // 2. 使用数据库事务批量处理，提高性能并确保安全\n    await Zotero.DB.executeTransaction(async function () {\n        for (let id of ids) {\n            let item = Zotero.Items.get(id);\n            \n            // 3. 移除标签\n            item.removeTag(TAG_NAME);\n            \n            // 4. 保存更改\n            // 使用 skipDateModifiedUpdate: true 可以防止同步时因修改时间变动导致的冲突\n            await item.save({\n                skipDateModifiedUpdate: true\n            });\n        }\n    });\n\n    // 5. 刷新 UI 界面\n    if (typeof ZoteroPane !== 'undefined') {\n        ZoteroPane.collectionsView.refresh();\n    }\n\n    return `成功移除 ${ids.length} 个条目上的 \"${TAG_NAME}\" 标签。`;\n})();",
+    "tags": [
+      "移除tag"
+    ],
+    "createdAt": 1769409183885
   }
 ]
