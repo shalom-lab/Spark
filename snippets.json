@@ -29,5 +29,15 @@
       "search"
     ],
     "createdAt": 1769408828549
+  },
+  {
+    "id": "1769409003917",
+    "title": "Zotero",
+    "lang": "JS",
+    "code": "(async function() {\n    const searchName = '重复条目 (_dup)';\n    const targetTag = '_dup'; // 根据你之前的描述，这里设为 _dup，如果是 '_tag' 请自行修改\n    const libraryID = Zotero.Libraries.userLibraryID;\n\n    // 1. 创建搜索对象\n    let s = new Zotero.Search();\n    s.libraryID = libraryID;\n    s.setName(searchName);\n\n    // 2. 添加搜索条件：标签 (tag) 是 (is) 指定值\n    // 第一个参数是字段名，第二个是运算符，第三个是值\n    s.addCondition('tag', 'is', targetTag);\n\n    // 3. 执行保存事务\n    // eraseTx 是删除，saveTx 是保存（带数据库事务支持）\n    try {\n        let searchID = await s.saveTx();\n        \n        // 4. 强制刷新界面，让新搜索出现在左侧边栏\n        if (typeof ZoteroPane !== 'undefined') {\n            await ZoteroPane.collectionsView.refresh();\n            // 自动选中新生成的搜索\n            ZoteroPane.collectionsView.selectSearch(searchID);\n        }\n        \n        return `成功创建搜索分类：${searchName} (ID: ${searchID})`;\n    } catch (e) {\n        return `创建失败：${e.message}`;\n    }\n})();",
+    "tags": [
+      "新建搜索"
+    ],
+    "createdAt": 1769409003917
   }
 ]
