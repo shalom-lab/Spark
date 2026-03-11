@@ -79,5 +79,15 @@
       "GEMINIKEY"
     ],
     "createdAt": 1769428237364
+  },
+  {
+    "id": "1773198525533",
+    "title": "Zotero读取PDF",
+    "lang": "JS",
+    "code": "// 1. 获取选中的条目\nvar item = ZoteroPane.getSelectedItems()[0];\nif (!item) return \"❌ 请先选中一个条目\";\n\n// 2. 查找 PDF 附件\nvar attachments = await item.getAttachments();\nvar pdfItem = null;\nfor (let id of attachments) {\n    let att = Zotero.Items.get(id);\n    if (att.isPDFAttachment()) {\n        pdfItem = att;\n        break;\n    }\n}\nif (!pdfItem) return \"❌ 未找到 PDF 附件\";\n\n// 3. 核心：读取本地全文缓存文件 (.zotero-ft-cache)\ntry {\n    // 获取 PDF 所在的存储目录路径\n    let storagePath = Zotero.Attachments.getStorageDirectory(pdfItem).path;\n    // 构造缓存文件的完整路径\n    let cacheFilePath = PathUtils.join(storagePath, \".zotero-ft-cache\");\n    \n    // 异步读取文件内容\n    let text = await IOUtils.readUTF8(cacheFilePath);\n    \n    if (text) {\n        return `✅ 成功通过文件系统提取文本！预览：\\n\\n${text.substring(0, 500)}...`;\n    }\n} catch (e) {\n    return `⚠️ 提取失败。可能原因：该 PDF 尚未索引。\\n请在 Zotero 列表右键点击该 PDF -> '重新索引条目'，然后再跑一次。`;\n}",
+    "tags": [
+      "Zotero"
+    ],
+    "createdAt": 1773198525533
   }
 ]
