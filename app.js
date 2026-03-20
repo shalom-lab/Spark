@@ -402,7 +402,6 @@ createApp({
                 const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
                 snippets.value = JSON.parse(decoded);
                 currentView.value = 'list';
-                notify('syncSuccess');
             } catch (e) { notify('authFailed', 'error'); currentView.value = 'settings'; }
             finally { loading.value = false; }
         };
@@ -675,6 +674,28 @@ createApp({
             }
         };
 
+        const lineCount = computed(() => {
+            const count = (form.code || '').split('\n').length;
+            return count < 5 ? 5 : count; // 至少显示5行
+        });
+
+        const lineNumbersRef = ref(null);
+
+        const syncScroll = (e) => {
+            if (lineNumbersRef.value) {
+                lineNumbersRef.value.scrollTop = e.target.scrollTop;
+            }
+        };
+
+        const handleTab = (e) => {
+            const start = e.target.selectionStart;
+            const end = e.target.selectionEnd;
+            form.code = form.code.substring(0, start) + '    ' + form.code.substring(end);
+            nextTick(() => {
+                e.target.selectionStart = e.target.selectionEnd = start + 4;
+            });
+        };
+
         onMounted(() => {
             // 初始化主题
             applyTheme(themeMode.value);
@@ -688,7 +709,7 @@ createApp({
             }
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, confirmModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, confirmModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor, lineCount, lineNumbersRef, syncScroll, handleTab };
     }
 }).mount('#app');
 
