@@ -290,23 +290,7 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div
-                                    class="rounded-xl p-8 flex flex-col justify-between h-44 border border-gray-200 dark:border-white/5 bg-white dark:bg-slate-800 shadow-xl">
-                                    <div>
-                                        <h4 class="font-bold text-base flex items-center gap-2">
-                                            <div
-                                                class="w-2 h-2 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/40">
-                                            </div>
-                                            {{ t('magicLink') }}
-                                        </h4>
-                                        <p
-                                            class="text-[11px] text-gray-500 leading-relaxed mt-2 uppercase tracking-tight">
-                                            {{ t('magicLinkDesc') }}</p>
-                                    </div>
-                                    <button @click="generateMagicBookmark" :disabled="!isReady"
-                                        class="text-[10px] font-black text-indigo-500 hover:underline text-left uppercase tracking-widest disabled:opacity-30">{{
-                                        t('generateBookmark') }} →</button>
-                                </div>
+
                                 <div
                                     class="rounded-xl p-8 flex flex-col justify-between h-44 border border-gray-200 dark:border-white/5 bg-white dark:bg-slate-800 shadow-xl">
                                     <div>
@@ -427,33 +411,7 @@
             </div>
         </transition>
 
-        <!-- 暗号链接弹窗 -->
-        <transition name="view-fade">
-            <div v-if="bookmarkModal.show"
-                class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
-                <div
-                    class="rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl w-full max-w-lg p-12 text-center bg-white dark:bg-slate-800">
-                    <div
-                        class="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white mx-auto mb-8 shadow-lg">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-black mb-4 uppercase tracking-wider italic">{{ t('bookmarkReady') }}</h3>
-                    <p class="text-xs text-gray-500 mb-8 leading-relaxed font-medium px-4 opacity-80">{{
-                        t('bookmarkHint') }}</p>
-                    <div
-                        class="p-6 rounded-lg border break-all text-[9px] code-font text-indigo-500 max-h-32 overflow-y-auto mb-10 custom-scrollbar select-all bg-gray-50 dark:bg-slate-900/50 border-gray-200 dark:border-white/5">
-                        {{ bookmarkModal.url }}
-                    </div>
-                    <button @click="copy(bookmarkModal.url); bookmarkModal.show = false"
-                        class="w-full py-4 font-black rounded-lg transition btn-press tracking-widest text-[10px] uppercase bg-indigo-600 text-white hover:bg-indigo-700">
-                        {{ t('copyDismiss') }}
-                    </button>
-                </div>
-            </div>
-        </transition>
+
 
         <!-- 删除确认对话框 -->
         <transition name="view-fade">

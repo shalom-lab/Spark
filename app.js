@@ -104,9 +104,6 @@ const I18N_DATA = {
         masterPassword: "主密码 (可选，用于加密Token)",
         masterPasswordPlaceholder: "可选：填写后Token将被加密存储",
         saveBtn: "保存配置",
-        magicLink: "保存书签",
-        magicLinkDesc: "将 Token 和仓库信息保存为书签链接。下次使用时，直接点击书签即可自动填写配置，无需手动输入。",
-        generateBookmark: "生成书签链接",
         exportDB: "导出数据库",
         exportDBDesc: "将所有灵感导出为物理 JSON 文件。",
         downloadJSON: "下载备份",
@@ -122,13 +119,9 @@ const I18N_DATA = {
         discard: "放弃",
         pushing: "推送中...",
         captureAction: "捕捉此 Spark",
-        bookmarkReady: "书签链接已生成",
-        bookmarkHint: "复制下方链接，在浏览器书签栏中右键选择\"添加书签\"，将链接粘贴到\"网址\"栏并保存。下次使用时，直接点击该书签即可自动恢复配置。",
-        copyDismiss: "复制并关闭",
         syncSuccess: "核心同步成功",
         authFailed: "同步失败：Token 无效",
         captured: "灵感已捕获至云端",
-        restored: "已通过书签恢复配置并保存到本地",
         decryptionFailed: "解密失败：主密码错误",
         fieldsIncomplete: "内容缺失",
         copied: "灵感已复制",
@@ -168,9 +161,6 @@ const I18N_DATA = {
         masterPassword: "Master Password (Optional)",
         masterPasswordPlaceholder: "Optional: Encrypt token when provided",
         saveBtn: "Save Configuration",
-        magicLink: "Save Bookmark",
-        magicLinkDesc: "Save your token and repository info as a bookmark link. Click the bookmark next time to auto-fill the configuration without manual input.",
-        generateBookmark: "Generate Bookmark",
         exportDB: "Export DB",
         exportDBDesc: "Download collection as a portable JSON file.",
         downloadJSON: "Download JSON",
@@ -186,13 +176,9 @@ const I18N_DATA = {
         discard: "Discard",
         pushing: "PUSHING...",
         captureAction: "CAPTURE SPARK",
-        bookmarkReady: "Bookmark Link Generated",
-        bookmarkHint: "Copy the link below, right-click in your browser's bookmark bar, select \"Add Bookmark\", paste the link into the \"URL\" field and save. Next time, simply click the bookmark to auto-restore your configuration.",
-        copyDismiss: "COPY & DISMISS",
         syncSuccess: "SYNC SUCCESSFUL",
         authFailed: "AUTH FAILED: INVALID TOKEN",
         captured: "CAPTURED TO CLOUD",
-        restored: "CONFIG RESTORED FROM BOOKMARK AND SAVED",
         decryptionFailed: "DECRYPTION FAILED",
         fieldsIncomplete: "FIELDS INCOMPLETE",
         copied: "COPIED TO CLIPBOARD",
@@ -249,7 +235,6 @@ createApp({
         const selectedLang = ref('');
         const toasts = ref([]);
         const sha = ref('');
-        const bookmarkModal = reactive({ show: false, url: '' });
         const confirmModal = reactive({ show: false, id: null });
 
         const config = reactive({
@@ -557,32 +542,6 @@ createApp({
             }
         };
 
-        const generateMagicBookmark = () => {
-            if (!isReady.value) return notify('fieldsIncomplete', 'error');
-            const raw = `${config.token}|${config.repo}`;
-            const encoded = btoa(raw);
-            const baseUrl = window.location.href.split('#')[0];
-            bookmarkModal.url = `${baseUrl}#setup=${encodeURIComponent(encoded)}`;
-            bookmarkModal.show = true;
-        };
-
-        const checkUrlHash = () => {
-            const hash = window.location.hash;
-            if (hash.startsWith('#setup=')) {
-                const encoded = decodeURIComponent(hash.split('=')[1]);
-                try {
-                    const raw = atob(encoded);
-                    if (raw && raw.includes('|')) {
-                        const [t_val, r_val] = raw.split('|');
-                        config.token = t_val; config.repo = r_val;
-                        saveConfig();
-                        notify('restored');
-                        setTimeout(() => { history.replaceState(null, document.title, window.location.pathname); }, 2000);
-                    }
-                } catch (e) { notify('decryptionFailed', 'error'); }
-            }
-        };
-
         const exportJSON = () => {
             const blob = new Blob([JSON.stringify(snippets.value, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -701,7 +660,6 @@ createApp({
             applyTheme(themeMode.value);
             updateHighlightTheme(themeMode.value);
             decryptStoredToken(); 
-            checkUrlHash();
             if (isConnected.value) {
                 fetchData();
             } else {
@@ -709,7 +667,7 @@ createApp({
             }
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, bookmarkModal, confirmModal, saveConfig, generateMagicBookmark, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor, lineCount, lineNumbersRef, syncScroll, handleTab };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, confirmModal, saveConfig, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor, lineCount, lineNumbersRef, syncScroll, handleTab };
     }
 }).mount('#app');
 
