@@ -107,5 +107,15 @@
       "数据框连接"
     ],
     "createdAt": 1774584003373
+  },
+  {
+    "id": "1774838098963",
+    "title": "R语言集合交并",
+    "lang": "R",
+    "code": "myvenn <- function(x, y, name1 = \"set1\", name2 = \"set2\") {\n  cat(\"\\n===== 集合比较 =====\\n\")\n  cat(sprintf(\"%s 数量: %d\\n\", name1, length(x)))\n  cat(sprintf(\"%s 数量: %d\\n\", name2, length(y)))\n  cat(sprintf(\"共同数量: %d\\n\", length(intersect(x, y))))\n  cat(sprintf(\"%s 独有数量: %d\\n\", name1, length(setdiff(x, y))))\n  cat(sprintf(\"%s 独有数量: %d\\n\", name2, length(setdiff(y, x))))\n  \n  cat(\"\\n===== 共同元素 =====\\n\")\n  print(intersect(x, y))\n  \n  cat(sprintf(\"\\n===== %s 独有 =====\\n\", name1))\n  print(setdiff(x, y))\n  \n  cat(sprintf(\"\\n===== %s 独有 =====\\n\", name2))\n  print(setdiff(y, x))\n}",
+    "tags": [
+      "比较"
+    ],
+    "createdAt": 1774838098963
   }
 ]
