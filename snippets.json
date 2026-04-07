@@ -139,5 +139,16 @@
       "选中条目"
     ],
     "createdAt": 1775550285429
+  },
+  {
+    "id": "1775556976950",
+    "title": "Zotero删除Tags",
+    "lang": "JS",
+    "code": "(async function () {\n    let collection = ZoteroPane.getSelectedCollection();\n\n    if (!collection) {\n        Zotero.alert(null, \"提示\", \"请先在左侧选中一个目录（collection）\");\n        return;\n    }\n\n    let colID = collection.id;\n\n    // 获取当前库所有条目\n    let libraryID = collection.libraryID;\n    let items = await Zotero.Items.getAll(libraryID);\n\n    let count = 0;\n\n    for (let item of items) {\n        if (!item.isRegularItem()) continue;\n\n        let cols = item.getCollections();\n\n        if (cols.includes(colID)) {\n            // 清空 tags\n            item.setTags([]);\n            await item.saveTx();\n            count++;\n        }\n    }\n\n    Zotero.alert(null, \"完成\", `已清空 ${count} 个条目的 tags`);\n})();",
+    "tags": [
+      "Zotero",
+      "删除标签"
+    ],
+    "createdAt": 1775556976950
   }
 ]
