@@ -128,5 +128,16 @@
       "删除Note"
     ],
     "createdAt": 1775549396455
+  },
+  {
+    "id": "1775550285429",
+    "title": "Zotero选中条目",
+    "lang": "JS",
+    "code": "(async () => {\n\n    // 当前 collection 下所有条目\n    let items = ZoteroPane.getSelectedCollection().getChildItems();\n\n    let matchedIDs = [];\n\n    function isAllCaps(str) {\n        return str && /[A-Z]/.test(str) && str === str.toUpperCase();\n    }\n\n    for (let item of items) {\n        if (!item.isRegularItem()) continue;\n\n        let pub = item.getField(\"publicationTitle\");\n        if (!pub) continue;\n\n        if (isAllCaps(pub)) {\n            matchedIDs.push(item.id);\n        }\n    }\n\n    if (matchedIDs.length > 0) {\n\n        // ⭐ 关键：在 UI 中选中这些条目\n        ZoteroPane.selectItems(matchedIDs);\n\n        Zotero.info(`已选中 ${matchedIDs.length} 条“全大写出版物”条目`);\n    } else {\n        Zotero.info(\"未发现全大写出版物条目\");\n    }\n\n})();",
+    "tags": [
+      "Zotero",
+      "选中条目"
+    ],
+    "createdAt": 1775550285429
   }
 ]
