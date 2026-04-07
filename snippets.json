@@ -117,5 +117,16 @@
       "比较"
     ],
     "createdAt": 1774838098963
+  },
+  {
+    "id": "1775549396455",
+    "title": "Zotero去除笔记",
+    "lang": "JS",
+    "code": "(async () => {\n    let selectedItems = ZoteroPane.getSelectedItems();\n    let noteIDsToTrash = [];\n\n    for (let item of selectedItems) {\n        if (item.isRegularItem()) {\n            let noteIDs = item.getNotes();\n            if (noteIDs && noteIDs.length > 0) {\n                noteIDsToTrash.push(...noteIDs);\n            }\n        }\n    }\n\n    if (noteIDsToTrash.length > 0) {\n        await Zotero.Items.trashTx(noteIDsToTrash);\n        return `操作成功：已清理 ${noteIDsToTrash.length} 条子笔记。`;\n    } else {\n        return \"未发现子笔记。请确认你选中了包含笔记的“文献条目”。\";\n    }\n})();",
+    "tags": [
+      "zotero",
+      "删除Note"
+    ],
+    "createdAt": 1775549396455
   }
 ]
