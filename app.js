@@ -238,7 +238,7 @@ createApp({
         const confirmModal = reactive({ show: false, id: null });
 
         const config = reactive({
-            token: '',
+            token: localStorage.getItem('spark_token') || '',
             repo: localStorage.getItem('spark_repo') || '',
             path: 'snippets.json'
         });
@@ -315,11 +315,6 @@ createApp({
             }
             const index = Math.abs(hash) % colors.length;
             return colors[index];
-        };
-
-        const decryptStoredToken = () => {
-            const stored = localStorage.getItem('spark_token');
-            if (stored) config.token = stored;
         };
 
         const modal = reactive({ show: false, mode: 'add', currentId: null });
@@ -656,14 +651,12 @@ createApp({
         };
 
         onMounted(() => {
-            // 初始化主题
             applyTheme(themeMode.value);
             updateHighlightTheme(themeMode.value);
-            decryptStoredToken(); 
             if (isConnected.value) {
                 fetchData();
-            } else {
-                if (localStorage.getItem('spark_token')) currentView.value = 'settings';
+            } else if (config.token) {
+                currentView.value = 'settings';
             }
         });
 
