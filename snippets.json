@@ -161,5 +161,13 @@
       "ai"
     ],
     "createdAt": 1775620159463
+  },
+  {
+    "id": "1778399234387",
+    "title": "DT颜色映射",
+    "lang": "R",
+    "code": "make_dt <- function(data, scrollX=FALSE, ordering=FALSE, heat_cols=NULL, n_bins=6) {\n\n  dt <- datatable(\n    data,\n    rownames=FALSE,\n    selection=\"none\",\n    options=list(\n      dom=if(scrollX)\"ft\" else \"t\",\n      scrollX=scrollX,\n      ordering=ordering\n    )\n  )\n\n  if(!is.null(heat_cols)) {\n    for(col in heat_cols) {\n\n      x <- data[[col]]\n      if(!is.numeric(x)) next\n      if(all(is.na(x))) next\n\n      brks <- unique(seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE), length.out=n_bins))\n      brks <- sort(brks)\n      if(length(brks) < 2) next\n\n      cols <- colorRampPalette(c(\"#fee2e2\",\"#fca5a5\",\"#60a5fa\",\"#1d4ed8\"))(length(brks)+1)\n\n      dt <- dt %>% formatStyle(\n        col,\n        backgroundColor = styleInterval(brks, cols)\n      )\n    }\n  }\n\n  dt\n}",
+    "tags": [],
+    "createdAt": 1778399234387
   }
 ]
