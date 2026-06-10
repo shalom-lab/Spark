@@ -179,5 +179,16 @@
       "reactable"
     ],
     "createdAt": 1780918720619
+  },
+  {
+    "id": "1781096934876",
+    "title": "gt",
+    "lang": "R",
+    "code": "# 1. 加载必要的包\nlibrary(gt)\nlibrary(tidyverse) # 用于切片数据，方便演示\n\ndf<-mtcars %>% head(10) %>%\n  select(mpg,disp) %>%\n  rownames_to_column(var = \"car_model\") %>%\n  mutate(disp2=disp,\n         var1=1:10,\n         var2=1:10+100,\n         var3=exp(1:10),\n         var4=exp(1:10)*3)\n\ndf %>%\n  gt() %>%\n  data_color(\n    columns = c(mpg, disp,var1,var2,var3,var4),\n    fn = scales::col_numeric(\n      palette = \"Blues\",\n      domain = NULL\n    )\n  ) %>%\n  fmt_number(\n    columns = c(var3,var4), # 选中要变小数点的列\n    decimals = 1 # 设置保留 2 位小数\n  ) %>%\n  data_color(\n    columns = disp2,\n    fn = scales::col_numeric(\n      palette = \"Blues\", \n      domain = df$disp # 👈 关键：看这里！强行绑定原始数值\n    )\n  ) %>%\n  text_transform(\n    locations = cells_body(columns = disp2), # 改变 mpg 列的文字\n    fn = function(x) {\n      df$var1\n    }\n  ) %>%\n  opt_interactive(\n    use_compact_mode = TRUE, use_search = TRUE, use_sorting = TRUE,\n    use_page_size_select = TRUE, page_size_default = 150\n  )\n",
+    "tags": [
+      "gt",
+      "table"
+    ],
+    "createdAt": 1781096934876
   }
 ]
