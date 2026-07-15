@@ -200,5 +200,16 @@
       "github_action"
     ],
     "createdAt": 1784097212679
+  },
+  {
+    "id": "1784101567602",
+    "title": "Excel颜色映射",
+    "lang": "R",
+    "code": "library(openxlsx)\n\n# 1. 创建工作簿和工作表\nwb <- createWorkbook()\naddWorksheet(wb, \"Elegant Heatmap\", gridLines = TRUE)\n\n# 2. 生成一个平滑变化的二维数学矩阵（波纹效果，让渐变看起来非常丝滑）\nrows <- 15\ncols <- 15\ngrid_data <- outer(1:rows, 1:cols, function(x, y) {\n  # 利用正弦和余弦函数制造出中心高、四周平滑起伏的波动效果\n  round(sin(x / 2.5) * cos(y / 2.5) * 100, 1)\n})\ndf <- as.data.frame(grid_data)\n\n# 3. 将数据写入工作表\nwriteData(wb, \"Elegant Heatmap\", df, colNames = FALSE, rowNames = FALSE)\n\n# 4. 精心挑选的高级感 3 色渐变\n# 极小值 (深青蓝) -> 中间值 (珍珠白) -> 最大值 (暖橙金)\nmy_palette <- c(\"#005F73\", \"#E9D8A6\", \"#AE2012\")\n\n# 5. 应用条件格式化 (colourScale)\n# 这里不指定 rule（设为 NULL），openxlsx 会自动根据单元格的实际最小值、中位数和最大值进行平滑过渡\nconditionalFormatting(\n  wb, \"Elegant Heatmap\",\n  cols = 1:ncol(df),\n  rows = 1:nrow(df),\n  style = my_palette,\n  rule = NULL,          # 自动计算 Min, Mid, Max\n  type = \"colourScale\"\n)\n\n# 6. 美化单元格外观（把单元格改成正方形，更像一个精致的热力图像素块）\nsetColWidths(wb, \"Elegant Heatmap\", cols = 1:ncol(df), widths = 4.5)\nsetRowHeights(wb, \"Elegant Heatmap\", rows = 1:nrow(df), heights = 24)\n\n# 7. 保存文件\nsaveWorkbook(wb, \"BeautifulColorScale.xlsx\", overwrite = TRUE)\n",
+    "tags": [
+      "openxlsx",
+      "excel"
+    ],
+    "createdAt": 1784101567602
   }
 ]
