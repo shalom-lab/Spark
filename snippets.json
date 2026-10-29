@@ -211,5 +211,13 @@
       "excel"
     ],
     "createdAt": 1784101567602
+  },
+  {
+    "id": "1793282833642",
+    "title": "NPM发布",
+    "lang": "TEXT",
+    "code": "npm login --auth-type=web --registry=https://registry.npmjs.org\nnpm whoami --registry=https://registry.npmjs.org/\nnpm publish --registry=https://registry.npmjs.org//",
+    "tags": [],
+    "createdAt": 1793282833642
   }
 ]
