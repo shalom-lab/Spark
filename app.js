@@ -6,7 +6,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'JS',
         label: 'JavaScript',
-        tagStyle: 'text-[#a16207] dark:text-[#f7df1e] border border-[#f7df1e]/30',
+        tagStyle: 'bg-[#eab308] text-black border border-[#ca8a04]/40',
         colorDot: 'bg-[#f7df1e]',
         cardBg: 'bg-amber-50/80 dark:bg-amber-950/25 border-amber-200/70 dark:border-amber-500/20',
         hljsAlias: 'javascript'
@@ -14,7 +14,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'R',
         label: 'R',
-        tagStyle: 'text-[#276bba] border border-[#276bba]/20',
+        tagStyle: 'bg-[#276bba] text-white border border-[#1e5699]/50',
         colorDot: 'bg-[#276bba]',
         cardBg: 'bg-blue-50/80 dark:bg-blue-950/30 border-blue-200/70 dark:border-blue-500/25',
         hljsAlias: 'r'
@@ -22,7 +22,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'PYTHON',
         label: 'Python',
-        tagStyle: 'text-[#3776ab] border border-[#3776ab]/20',
+        tagStyle: 'bg-[#3776ab] text-white border border-[#2c5f8a]/50',
         colorDot: 'bg-[#3776ab]',
         cardBg: 'bg-sky-50/80 dark:bg-sky-950/30 border-sky-200/70 dark:border-sky-500/25',
         hljsAlias: 'python'
@@ -30,7 +30,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'YAML',
         label: 'YAML',
-        tagStyle: 'text-[#cb171e] border border-[#cb171e]/20',
+        tagStyle: 'bg-[#b91c1c] text-white border border-[#991b1b]/50',
         colorDot: 'bg-[#cb171e]',
         cardBg: 'bg-rose-50/80 dark:bg-rose-950/25 border-rose-200/70 dark:border-rose-500/20',
         hljsAlias: 'yaml'
@@ -38,7 +38,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'SQL',
         label: 'SQL',
-        tagStyle: 'text-[#336791] border border-[#336791]/20',
+        tagStyle: 'bg-[#336791] text-white border border-[#274d6e]/50',
         colorDot: 'bg-[#336791]',
         cardBg: 'bg-indigo-50/80 dark:bg-indigo-950/30 border-indigo-200/70 dark:border-indigo-500/25',
         hljsAlias: 'sql'
@@ -46,7 +46,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'MD',
         label: 'Markdown',
-        tagStyle: 'text-gray-500 dark:text-gray-400 border border-gray-400/20',
+        tagStyle: 'bg-slate-600 text-white border border-slate-700/50',
         colorDot: 'bg-gray-400',
         cardBg: 'bg-slate-50/90 dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10',
         hljsAlias: 'markdown'
@@ -54,7 +54,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'TEXT',
         label: 'Plain Text',
-        tagStyle: 'text-gray-500 dark:text-gray-400 border border-gray-400/20',
+        tagStyle: 'bg-stone-500 text-white border border-stone-600/50',
         colorDot: 'bg-gray-400',
         cardBg: 'bg-stone-50/90 dark:bg-stone-900/40 border-stone-200/80 dark:border-stone-500/20',
         hljsAlias: 'plaintext'
@@ -62,7 +62,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'BASH',
         label: 'Bash',
-        tagStyle: 'text-[#3f6212] dark:text-[#89e051] border border-[#89e051]/30',
+        tagStyle: 'bg-[#4d7c0f] text-white border border-[#3f6212]/50',
         colorDot: 'bg-[#89e051]',
         cardBg: 'bg-lime-50/80 dark:bg-lime-950/25 border-lime-200/70 dark:border-lime-500/20',
         hljsAlias: 'bash'
@@ -70,7 +70,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'HTML',
         label: 'HTML',
-        tagStyle: 'text-[#e34c26] border border-[#e34c26]/20',
+        tagStyle: 'bg-[#e34c26] text-white border border-[#c2410c]/50',
         colorDot: 'bg-[#e34c26]',
         cardBg: 'bg-orange-50/80 dark:bg-orange-950/25 border-orange-200/70 dark:border-orange-500/20',
         hljsAlias: 'xml'
@@ -78,7 +78,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'CSS',
         label: 'CSS',
-        tagStyle: 'text-[#264de4] border border-[#264de4]/20',
+        tagStyle: 'bg-[#264de4] text-white border border-[#1e3a8a]/50',
         colorDot: 'bg-[#264de4]',
         cardBg: 'bg-violet-50/80 dark:bg-violet-950/30 border-violet-200/70 dark:border-violet-500/25',
         hljsAlias: 'css'
@@ -86,7 +86,7 @@ const LANGUAGE_CONFIG = [
     {
         value: 'TS',
         label: 'TypeScript',
-        tagStyle: 'text-[#3178c6] border border-[#3178c6]/20',
+        tagStyle: 'bg-[#3178c6] text-white border border-[#1d4ed8]/50',
         colorDot: 'bg-[#3178c6]',
         cardBg: 'bg-cyan-50/80 dark:bg-cyan-950/25 border-cyan-200/70 dark:border-cyan-500/25',
         hljsAlias: 'typescript'
@@ -683,7 +683,7 @@ createApp({
 
         const getLangTagStyle = (l) => {
             const config = LANGUAGE_CONFIG.find(lang => lang.value === l.toUpperCase());
-            return config ? config.tagStyle : 'text-gray-400 border border-white/5';
+            return config ? config.tagStyle : 'bg-gray-500 text-white border border-gray-600/40';
         };
 
         const getLangCardBg = (l) => {
