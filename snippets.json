@@ -215,7 +215,7 @@
   {
     "id": "1793282833642",
     "title": "NPM发布",
-    "lang": "TEXT",
+    "lang": "BASH",
     "code": "npm login --auth-type=web --registry=https://registry.npmjs.org\nnpm whoami --registry=https://registry.npmjs.org/\nnpm publish --registry=https://registry.npmjs.org//",
     "tags": [],
     "createdAt": 1793282833642
