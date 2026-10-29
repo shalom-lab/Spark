@@ -40,40 +40,39 @@ body {
     border-radius: 10px;
 }
 
-/* 隐藏代码区域的滚动条 */
-.editor-window pre::-webkit-scrollbar {
-    display: none;
-}
-
-.editor-window pre {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
-}
-
-.editor-window pre code {
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
-}
-
 /* 导航栏 */
 header {
     z-index: 100;
 }
 
-/* 编辑器窗口风格 */
+/* 紧凑卡片：更矮、信息更密；hover 仅描边/阴影，无位移无倾斜 */
+.snippet-card {
+    height: 200px;
+    max-height: 200px;
+}
+
 .editor-window {
-    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     border-width: 1px;
     display: flex;
     flex-direction: column;
 }
 
 .editor-window:hover {
-    transform: translateY(-5px);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.35);
+}
+
+.snippet-code {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-height: 100%;
+    margin: 0;
+}
+
+.snippet-code::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
 }
 
 /* 动画 */
@@ -101,7 +100,6 @@ header {
     background: transparent !important;
 }
 
-/* 代码块背景色 */
 pre.hljs {
     background: transparent;
 }
@@ -109,4 +107,3 @@ pre.hljs {
 .dark pre.hljs {
     background: transparent;
 }
-

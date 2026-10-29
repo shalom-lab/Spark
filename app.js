@@ -6,8 +6,9 @@ const LANGUAGE_CONFIG = [
     {
         value: 'JS',
         label: 'JavaScript',
-        tagStyle: 'text-[#f7df1e] border border-[#f7df1e]/20',
+        tagStyle: 'text-[#a16207] dark:text-[#f7df1e] border border-[#f7df1e]/30',
         colorDot: 'bg-[#f7df1e]',
+        cardBg: 'bg-amber-50/80 dark:bg-amber-950/25 border-amber-200/70 dark:border-amber-500/20',
         hljsAlias: 'javascript'
     },
     {
@@ -15,6 +16,7 @@ const LANGUAGE_CONFIG = [
         label: 'R',
         tagStyle: 'text-[#276bba] border border-[#276bba]/20',
         colorDot: 'bg-[#276bba]',
+        cardBg: 'bg-blue-50/80 dark:bg-blue-950/30 border-blue-200/70 dark:border-blue-500/25',
         hljsAlias: 'r'
     },
     {
@@ -22,6 +24,7 @@ const LANGUAGE_CONFIG = [
         label: 'Python',
         tagStyle: 'text-[#3776ab] border border-[#3776ab]/20',
         colorDot: 'bg-[#3776ab]',
+        cardBg: 'bg-sky-50/80 dark:bg-sky-950/30 border-sky-200/70 dark:border-sky-500/25',
         hljsAlias: 'python'
     },
     {
@@ -29,6 +32,7 @@ const LANGUAGE_CONFIG = [
         label: 'YAML',
         tagStyle: 'text-[#cb171e] border border-[#cb171e]/20',
         colorDot: 'bg-[#cb171e]',
+        cardBg: 'bg-rose-50/80 dark:bg-rose-950/25 border-rose-200/70 dark:border-rose-500/20',
         hljsAlias: 'yaml'
     },
     {
@@ -36,27 +40,31 @@ const LANGUAGE_CONFIG = [
         label: 'SQL',
         tagStyle: 'text-[#336791] border border-[#336791]/20',
         colorDot: 'bg-[#336791]',
+        cardBg: 'bg-indigo-50/80 dark:bg-indigo-950/30 border-indigo-200/70 dark:border-indigo-500/25',
         hljsAlias: 'sql'
     },
     {
         value: 'MD',
         label: 'Markdown',
-        tagStyle: 'text-gray-400 border border-gray-400/20',
+        tagStyle: 'text-gray-500 dark:text-gray-400 border border-gray-400/20',
         colorDot: 'bg-gray-400',
+        cardBg: 'bg-slate-50/90 dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10',
         hljsAlias: 'markdown'
     },
     {
         value: 'TEXT',
         label: 'Plain Text',
-        tagStyle: 'text-gray-400 border border-gray-400/20',
+        tagStyle: 'text-gray-500 dark:text-gray-400 border border-gray-400/20',
         colorDot: 'bg-gray-400',
+        cardBg: 'bg-stone-50/90 dark:bg-stone-900/40 border-stone-200/80 dark:border-stone-500/20',
         hljsAlias: 'plaintext'
     },
     {
         value: 'BASH',
         label: 'Bash',
-        tagStyle: 'text-[#89e051] border border-[#89e051]/20',
+        tagStyle: 'text-[#3f6212] dark:text-[#89e051] border border-[#89e051]/30',
         colorDot: 'bg-[#89e051]',
+        cardBg: 'bg-lime-50/80 dark:bg-lime-950/25 border-lime-200/70 dark:border-lime-500/20',
         hljsAlias: 'bash'
     },
     {
@@ -64,6 +72,7 @@ const LANGUAGE_CONFIG = [
         label: 'HTML',
         tagStyle: 'text-[#e34c26] border border-[#e34c26]/20',
         colorDot: 'bg-[#e34c26]',
+        cardBg: 'bg-orange-50/80 dark:bg-orange-950/25 border-orange-200/70 dark:border-orange-500/20',
         hljsAlias: 'xml'
     },
     {
@@ -71,6 +80,7 @@ const LANGUAGE_CONFIG = [
         label: 'CSS',
         tagStyle: 'text-[#264de4] border border-[#264de4]/20',
         colorDot: 'bg-[#264de4]',
+        cardBg: 'bg-violet-50/80 dark:bg-violet-950/30 border-violet-200/70 dark:border-violet-500/25',
         hljsAlias: 'css'
     },
     {
@@ -78,6 +88,7 @@ const LANGUAGE_CONFIG = [
         label: 'TypeScript',
         tagStyle: 'text-[#3178c6] border border-[#3178c6]/20',
         colorDot: 'bg-[#3178c6]',
+        cardBg: 'bg-cyan-50/80 dark:bg-cyan-950/25 border-cyan-200/70 dark:border-cyan-500/25',
         hljsAlias: 'typescript'
     }
 ];
@@ -98,12 +109,12 @@ const I18N_DATA = {
         copyInsight: "复制灵感",
         themeToggle: "切换深浅色主题",
         settingsTitle: "系统设置",
-        settingsSubtitle: "配置中心与本地加密",
+        settingsSubtitle: "BYOK 配置 · Token 仅存本机",
         githubToken: "GitHub 令牌",
         repoPath: "仓库路径",
         masterPassword: "主密码 (可选，用于加密Token)",
         masterPasswordPlaceholder: "可选：填写后Token将被加密存储",
-        saveBtn: "保存配置",
+        saveBtn: "同步并保存配置",
         exportDB: "导出数据库",
         exportDBDesc: "将所有灵感导出为物理 JSON 文件。",
         downloadJSON: "下载备份",
@@ -139,7 +150,18 @@ const I18N_DATA = {
         noWritePermission: "Token 没有写入权限，需要 Contents: Read and write 权限",
         readTestFailed: "读取权限验证失败",
         writeTestFailed: "写入权限验证失败",
-        validationError: "配置验证失败，请检查网络连接"
+        validationError: "配置验证失败，请检查网络连接",
+        emptySearch: "没有匹配的灵感",
+        emptySearchHint: "试试换个关键词，或清除筛选条件",
+        emptyLibrary: "还没有灵感片段",
+        emptyLibraryHint: "点击右上角「新增片段」捕捉第一个 Spark",
+        clearFilters: "清除筛选",
+        localModeHint: "正在浏览本地 snippets.json（只读）。配置 GitHub 后可同步编辑。",
+        configureToEdit: "配置后可编辑",
+        configCleared: "本地配置已清除",
+        deleteTitle: "删除",
+        clearConfig: "清除本地配置",
+        clearConfigConfirm: "确认清除本地 Token 与仓库配置？不会删除 GitHub 上的数据。"
     },
     en: {
         searchPlaceholder: "Search insights or keywords...",
@@ -155,12 +177,12 @@ const I18N_DATA = {
         copyInsight: "COPY INSIGHT",
         themeToggle: "Toggle Theme",
         settingsTitle: "System Settings",
-        settingsSubtitle: "Config & Local Encryption",
+        settingsSubtitle: "BYOK · Token stays on this device",
         githubToken: "GitHub Token",
         repoPath: "Repository Path",
         masterPassword: "Master Password (Optional)",
         masterPasswordPlaceholder: "Optional: Encrypt token when provided",
-        saveBtn: "Save Configuration",
+        saveBtn: "Sync & Save",
         exportDB: "Export DB",
         exportDBDesc: "Download collection as a portable JSON file.",
         downloadJSON: "Download JSON",
@@ -182,17 +204,6 @@ const I18N_DATA = {
         decryptionFailed: "DECRYPTION FAILED",
         fieldsIncomplete: "FIELDS INCOMPLETE",
         copied: "COPIED TO CLIPBOARD",
-        configSaved: "Configuration Saved",
-        configIncomplete: "Please fill in Token and Repository",
-        invalidRepoFormat: "Invalid repository format, should be: username/repo",
-        invalidToken: "Invalid or expired token",
-        repoNotFound: "Repository not found or no access",
-        repoCheckFailed: "Repository validation failed",
-        noReadPermission: "Token has no read permission",
-        noWritePermission: "Token has no write permission, requires Contents: Read and write",
-        readTestFailed: "Read permission test failed",
-        writeTestFailed: "Write permission test failed",
-        validationError: "Configuration validation failed, check network connection",
         confirmDelete: "Confirm Delete",
         confirmDeleteDesc: "This will permanently remove this snippet from GitHub. This action cannot be undone.",
         confirm: "Confirm Delete",
@@ -207,7 +218,18 @@ const I18N_DATA = {
         noWritePermission: "Token has no write permission, requires Contents: Read and write",
         readTestFailed: "Read permission test failed",
         writeTestFailed: "Write permission test failed",
-        validationError: "Configuration validation failed, check network connection"
+        validationError: "Configuration validation failed, check network connection",
+        emptySearch: "No matching sparks",
+        emptySearchHint: "Try another keyword, or clear filters",
+        emptyLibrary: "No snippets yet",
+        emptyLibraryHint: "Click NEW SNIP to catch your first Spark",
+        clearFilters: "Clear filters",
+        localModeHint: "Browsing local snippets.json (read-only). Configure GitHub to sync & edit.",
+        configureToEdit: "Configure to edit",
+        configCleared: "Local config cleared",
+        deleteTitle: "Delete",
+        clearConfig: "Clear local config",
+        clearConfigConfirm: "Clear local Token and repo config? GitHub data will not be deleted."
     }
 };
 
@@ -237,11 +259,16 @@ createApp({
         const sha = ref('');
         const confirmModal = reactive({ show: false, id: null });
 
+        // BYOK: gh-spark-* 为主，兼容旧键 spark_token / spark_repo
+        const readByok = (primary, legacy) =>
+            localStorage.getItem(primary) || localStorage.getItem(legacy) || '';
+
         const config = reactive({
-            token: localStorage.getItem('spark_token') || '',
-            repo: localStorage.getItem('spark_repo') || '',
+            token: readByok('gh-spark-token', 'spark_token'),
+            repo: readByok('gh-spark-repo', 'spark_repo'),
             path: 'snippets.json'
         });
+        const isLocalMode = ref(false);
 
         // 翻译函数
         const t = (key) => I18N_DATA[currentLang.value][key] || key;
@@ -332,8 +359,10 @@ createApp({
             return config ? config.label : value;
         };
 
-        const isReady = computed(() => !!(config.token && config.repo));
         const isConnected = computed(() => !!(config.token && config.repo));
+        const isReady = isConnected;
+        const canEdit = computed(() => isConnected.value && !isLocalMode.value);
+        const hasActiveFilters = computed(() => !!(searchQuery.value || selectedLang.value));
 
         const langStats = computed(() => {
             const stats = {};
@@ -369,8 +398,29 @@ createApp({
 
         const toggleSettings = () => { currentView.value = currentView.value === 'list' ? 'settings' : 'list'; };
 
+        const loadLocalSnippets = async () => {
+            loading.value = true;
+            try {
+                const res = await fetch(`./${config.path}?t=${Date.now()}`);
+                if (!res.ok) throw new Error('local load failed');
+                const data = await res.json();
+                snippets.value = Array.isArray(data) ? data : [];
+                isLocalMode.value = true;
+                sha.value = '';
+                currentView.value = 'list';
+            } catch (e) {
+                snippets.value = [];
+                isLocalMode.value = true;
+            } finally {
+                loading.value = false;
+            }
+        };
+
         const fetchData = async () => {
-            if (!isConnected.value) return;
+            if (!isConnected.value) {
+                await loadLocalSnippets();
+                return;
+            }
             loading.value = true;
             try {
                 const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
@@ -381,6 +431,7 @@ createApp({
                 sha.value = data.sha;
                 const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
                 snippets.value = JSON.parse(decoded);
+                isLocalMode.value = false;
                 currentView.value = 'list';
             } catch (e) { notify('authFailed', 'error'); currentView.value = 'settings'; }
             finally { loading.value = false; }
@@ -485,19 +536,9 @@ createApp({
                         return false;
                     }
 
-                    // 测试成功，删除测试文件
+                    // 写入权限验证成功：保留空的 snippets.json，避免再删再建
                     const testData = await testRes.json();
-                    await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.path}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'Authorization': `token ${config.token}`, 
-                            'Content-Type': 'application/json' 
-                        },
-                        body: JSON.stringify({ 
-                            message: 'Spark: Remove test file', 
-                            sha: testData.content.sha 
-                        })
-                    });
+                    sha.value = testData.content.sha;
                 } else if (!contentRes.ok) {
                     if (contentRes.status === 403) {
                         notify('noReadPermission', 'error');
@@ -519,21 +560,43 @@ createApp({
             }
         };
 
+        const persistByok = () => {
+            localStorage.setItem('gh-spark-token', config.token);
+            localStorage.setItem('gh-spark-repo', config.repo);
+            // 清理旧键，避免双源不一致
+            localStorage.removeItem('spark_token');
+            localStorage.removeItem('spark_repo');
+        };
+
+        const clearConfig = () => {
+            if (!confirm(t('clearConfigConfirm'))) return;
+            config.token = '';
+            config.repo = '';
+            localStorage.removeItem('gh-spark-token');
+            localStorage.removeItem('gh-spark-repo');
+            localStorage.removeItem('spark_token');
+            localStorage.removeItem('spark_repo');
+            sha.value = '';
+            notify('configCleared');
+            loadLocalSnippets();
+        };
+
         const saveConfig = async () => {
-            // 先验证配置
             const isValid = await validateConfig();
             if (!isValid) {
                 return;
             }
 
-            // 验证通过，保存到 localStorage
-            localStorage.setItem('spark_token', config.token);
-            localStorage.setItem('spark_repo', config.repo);
+            persistByok();
             notify('configSaved');
             
-            // 如果文件已存在，自动加载数据
             if (sha.value) {
                 fetchData();
+            } else {
+                // 刚创建空文件时，进入列表等待新增
+                isLocalMode.value = false;
+                snippets.value = [];
+                currentView.value = 'list';
             }
         };
 
@@ -546,6 +609,11 @@ createApp({
         };
 
         const openModal = (mode, s = null) => {
+            if (!canEdit.value) {
+                notify('configureToEdit', 'error');
+                currentView.value = 'settings';
+                return;
+            }
             modal.mode = mode;
             langDropdownOpen.value = false;
             if (mode === 'edit' && s) {
@@ -570,6 +638,11 @@ createApp({
         };
 
         const deleteSnippet = (id) => {
+            if (!canEdit.value) {
+                notify('configureToEdit', 'error');
+                currentView.value = 'settings';
+                return;
+            }
             confirmModal.id = id;
             confirmModal.show = true;
         };
@@ -587,17 +660,37 @@ createApp({
             confirmModal.id = null;
         };
 
-        const copy = (txt) => {
-            const el = document.createElement('textarea');
-            el.value = txt; document.body.appendChild(el);
-            el.select(); document.execCommand('copy');
-            document.body.removeChild(el);
-            notify('copied');
+        const copy = async (txt) => {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(txt);
+                } else {
+                    const el = document.createElement('textarea');
+                    el.value = txt;
+                    el.setAttribute('readonly', '');
+                    el.style.position = 'fixed';
+                    el.style.left = '-9999px';
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                }
+                notify('copied');
+            } catch (e) {
+                notify('copied');
+            }
         };
 
         const getLangTagStyle = (l) => {
             const config = LANGUAGE_CONFIG.find(lang => lang.value === l.toUpperCase());
             return config ? config.tagStyle : 'text-gray-400 border border-white/5';
+        };
+
+        const getLangCardBg = (l) => {
+            const config = LANGUAGE_CONFIG.find(lang => lang.value === String(l || '').toUpperCase());
+            return config && config.cardBg
+                ? config.cardBg
+                : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-white/5';
         };
 
         // 获取语言颜色点
@@ -612,20 +705,24 @@ createApp({
             return config ? config.hljsAlias : 'plaintext';
         };
 
-        // 高亮代码
+        // 高亮代码（按 code+lang 缓存，避免列表重复计算）
+        const highlightCache = new Map();
         const highlightCode = (code, lang) => {
             if (!code) return '';
+            const key = lang + '\0' + code;
+            if (highlightCache.has(key)) return highlightCache.get(key);
+            let html = code;
             try {
                 const alias = getLanguageAlias(lang);
                 if (window.hljs && window.hljs.highlight) {
-                    const result = window.hljs.highlight(code, { language: alias });
-                    return result.value;
+                    html = window.hljs.highlight(code, { language: alias }).value;
                 }
-                return code;
             } catch (e) {
                 console.error('Highlight error:', e);
-                return code;
             }
+            if (highlightCache.size > 200) highlightCache.clear();
+            highlightCache.set(key, html);
+            return html;
         };
 
         const lineCount = computed(() => {
@@ -650,17 +747,32 @@ createApp({
             });
         };
 
+        const onKeydown = (e) => {
+            if (e.key !== 'Escape') return;
+            if (confirmModal.show) {
+                cancelDelete();
+            } else if (modal.show) {
+                modal.show = false;
+                langDropdownOpen.value = false;
+            } else if (currentView.value === 'settings') {
+                currentView.value = 'list';
+            }
+        };
+
         onMounted(() => {
             applyTheme(themeMode.value);
             updateHighlightTheme(themeMode.value);
+            window.addEventListener('keydown', onKeydown);
             if (isConnected.value) {
                 fetchData();
-            } else if (config.token) {
+            } else if (config.token && !config.repo) {
                 currentView.value = 'settings';
+            } else {
+                loadLocalSnippets();
             }
         });
 
-        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, confirmModal, saveConfig, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor, lineCount, lineNumbersRef, syncScroll, handleTab };
+        return { currentLang, themeMode, t, toggleLang, toggleTheme, resetView, currentView, config, snippets, loading, syncing, searchQuery, selectedLang, langStats, allTags, filteredSnippets, toasts, modal, form, confirmModal, saveConfig, clearConfig, openModal, saveSnippet, deleteSnippet, confirmDelete, cancelDelete, copy, getLangTagStyle, getLangCardBg, getLangColorDot, getLanguageAlias, highlightCode, isReady, isConnected, canEdit, isLocalMode, hasActiveFilters, exportJSON, toggleSettings, langDropdownOpen, langOptions, getLangLabel, toggleTag, getTagColor, lineCount, lineNumbersRef, syncScroll, handleTab };
     }
 }).mount('#app');
 

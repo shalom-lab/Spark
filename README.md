@@ -34,10 +34,19 @@ Fork 本项目到你的 GitHub 账号，数据将存储在 `snippets.json` 文�
 
 ### 3️⃣ 使用方法
 
-1. 打开部署后的页面
+1. 打开部署后的页面（未配置时会只读浏览仓库内的 `snippets.json`）
 2. 点击 **设置**（右上角齿轮图标）
-3. 输入 **GitHub Token** 和 **仓库路径**
+3. 输入 **GitHub Token** 和 **仓库路径**（`owner/repo`）
 4. 点击 **同步并保存配置**
+
+**localStorage 键名（BYOK）**
+
+| Key | 说明 |
+|:---|:---|
+| `gh-spark-token` | GitHub PAT（Fine-grained 需 Contents: Read and write） |
+| `gh-spark-repo` | 仓库路径，如 `yourname/Spark` |
+
+可在设置页填写，也可事先写入 `localStorage`；启动时会自动读取。兼容旧键 `spark_token` / `spark_repo`（保存时会迁移到新键）。
 
 <details>
 <summary><b>📝 获取 Fine-grained Token（点击展开）</b></summary>
@@ -67,7 +76,7 @@ Fork 本项目到你的 GitHub 账号，数据将存储在 `snippets.json` 文�
 | 🔍 **智能搜索** | 输入 `#标签名` 精确匹配标签，或输入关键词搜索标题/代码内容 |
 | 🎨 **语言筛选** | 按 JavaScript、Python、R、SQL 等筛选 |
 | 🏷️ **标签切换** | 点击标签切换筛选状态 |
-| 🔖 **配置备份** | 生成书签链接，跨设备同步配置 |
+| 📦 **本地只读预览** | 未配置 Token 时也可浏览仓库内片段 |
 
 ---
 
@@ -83,6 +92,7 @@ Fork 本项目到你的 GitHub 账号，数据将存储在 `snippets.json` 文�
     label: 'New Language',                // 显示名称（下拉菜单和标签中显示）
     tagStyle: 'text-[#color] border border-[#color]/20',  // 标签样式（Tailwind CSS 类）
     colorDot: 'bg-[#color]',              // 颜色点样式（语言选择器中使用）
+    cardBg: 'bg-xxx-50/80 dark:bg-xxx-950/25 border-xxx-200/70', // 卡片浅色底（按语言区分）
     hljsAlias: 'language-alias'           // highlight.js 的语言别名（用于代码高亮）
 }
 ```
@@ -104,9 +114,10 @@ Spark/
 ---
 ## 🔒 数据安全
 
-- ✅ Token 存储在本地 localStorage
-- ✅ 数据同步到 GitHub 私有仓库
+- ✅ Token 仅存本机 `localStorage`（`gh-spark-token` / `gh-spark-repo`）
+- ✅ 数据同步到你的 GitHub 仓库 `snippets.json`
 - ✅ 支持 JSON 导出备份
+- ✅ 未配置时仅只读浏览，不会误写远端
 
 ---
 
